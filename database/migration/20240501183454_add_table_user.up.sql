@@ -9,3 +9,5 @@ CREATE TABLE "public"."user"
 
     CONSTRAINT "pk_user" PRIMARY KEY ("id")
 );
+
+CREATE INDEX "idx_user_email" ON "public"."user" ("email");
