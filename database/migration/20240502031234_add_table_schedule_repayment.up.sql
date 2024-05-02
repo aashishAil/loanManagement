@@ -7,8 +7,8 @@ CREATE TABLE "public"."schedule_repayment"
     "currency"         text        NOT NULL DEFAULT 'INR',
     "status"           text        NOT NULL DEFAULT 'PENDING',
     "scheduled_date"   date        NOT NULL,
-    "created_at"       timestamptz NOT NULL DEFAULT current_timestamp,
-    "updated_at"       timestamptz NOT NULL DEFAULT current_timestamp,
+    "created_at"       timestamp NOT NULL DEFAULT current_timestamp,
+    "updated_at"       timestamp NOT NULL DEFAULT current_timestamp,
 
     CONSTRAINT "pk_schedule_repayment" PRIMARY KEY ("id")
 );
@@ -19,7 +19,7 @@ CREATE TRIGGER update_schedule_repayment_modtime
     FOR EACH ROW
 EXECUTE PROCEDURE update_modified_column();
 
-CREATE INDEX "idx_schedule_payment_loan_id"
+CREATE INDEX "idx_schedule_repayment_loan_id"
     ON "public"."schedule_repayment" ("loan_id");
 
 
