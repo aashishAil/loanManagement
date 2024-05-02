@@ -6,7 +6,7 @@ CREATE TABLE "public"."schedule_repayment"
     "pending_amount"   bigint      NOT NULL,
     "currency"         text        NOT NULL DEFAULT 'INR',
     "status"           text        NOT NULL DEFAULT 'PENDING',
-    "scheduled_date"   date        NOT NULL,
+    "scheduled_date"   timestamp        NOT NULL,
     "created_at"       timestamp NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
     "updated_at"       timestamp NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 
