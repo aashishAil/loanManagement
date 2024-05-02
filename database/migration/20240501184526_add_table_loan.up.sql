@@ -9,8 +9,8 @@ CREATE TABLE "public"."loan"
     "term"               bigint    NOT NULL,
     "status"             text      NOT NULL DEFAULT 'PENDING',
     "disbursal_date"     timestamp NOT NULL,
-    "created_at"         timestamp NOT NULL DEFAULT current_timestamp,
-    "updated_at"         timestamp NOT NULL DEFAULT current_timestamp,
+    "created_at"         timestamp NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
+    "updated_at"         timestamp NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 
     CONSTRAINT "pk_loan" PRIMARY KEY ("id")
 );

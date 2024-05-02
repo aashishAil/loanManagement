@@ -4,7 +4,7 @@ CREATE TABLE "public"."payment"
     "loan_id"    uuid      NOT NULL REFERENCES "loan" ("id"),
     "amount"     bigint    NOT NULL,
     "currency"   text      NOT NULL DEFAULT 'INR',
-    "created_at" timestamp NOT NULL DEFAULT current_timestamp,
+    "created_at" timestamp NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 
     CONSTRAINT "pk_payment" PRIMARY KEY ("id")
 );

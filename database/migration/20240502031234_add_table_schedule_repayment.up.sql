@@ -7,8 +7,8 @@ CREATE TABLE "public"."schedule_repayment"
     "currency"         text        NOT NULL DEFAULT 'INR',
     "status"           text        NOT NULL DEFAULT 'PENDING',
     "scheduled_date"   date        NOT NULL,
-    "created_at"       timestamp NOT NULL DEFAULT current_timestamp,
-    "updated_at"       timestamp NOT NULL DEFAULT current_timestamp,
+    "created_at"       timestamp NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
+    "updated_at"       timestamp NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 
     CONSTRAINT "pk_schedule_repayment" PRIMARY KEY ("id")
 );

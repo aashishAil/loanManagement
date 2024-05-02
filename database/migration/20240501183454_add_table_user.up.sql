@@ -5,7 +5,7 @@ CREATE TABLE "public"."user"
     "email"              text        NOT NULL UNIQUE,
     "encrypted_password" text        NOT NULL,
     "type"               text        NOT NULL DEFAULT 'customer',
-    "created_at"         timestamp NOT NULL DEFAULT current_timestamp,
+    "created_at"         timestamp NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
 
     CONSTRAINT "pk_user" PRIMARY KEY ("id")
 );
