@@ -2,7 +2,7 @@ package config
 
 import "github.com/spf13/viper"
 
-type postgresConfig struct {
+type postgres struct {
 	host               string
 	port               int
 	user               string
@@ -13,9 +13,7 @@ type postgresConfig struct {
 	maxOpenConnections *int
 }
 
-func (c *postgresConfig) load() {
-	viper.AutomaticEnv()
-
+func (c *postgres) load() {
 	viper.SetEnvPrefix("POSTGRES")
 	c.host = viper.GetString("HOST")
 	c.port = viper.GetInt("PORT")
