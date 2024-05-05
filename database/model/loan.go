@@ -1,9 +1,11 @@
 package model
 
 import (
-	"github.com/google/uuid"
-	"loanManagement/constant"
 	"time"
+
+	"loanManagement/constant"
+
+	"github.com/google/uuid"
 )
 
 type Loan struct {

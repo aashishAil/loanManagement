@@ -1,22 +1,24 @@
 package config
 
 import (
-	_ "github.com/joho/godotenv/autoload" // auto load the env variables from the .env file
+	_ "github.com/joho/godotenv/autoload" // auto-load the env variables from the .env file
 	"github.com/spf13/viper"
+
 	"loanManagement/database/instance"
 )
 
 type Config interface {
 	PostgresConfig() instance.PostgresDbConfig
 	ServerPort() string
+	AppName() string
+	IsDevelopment() bool
 }
 type configType struct {
 	app      app
 	postgres postgres
-	server   server
 }
 
-var Env = &configType{}
+var Env Config
 
 func (c *configType) load() {
 	viper.AutomaticEnv()
@@ -24,8 +26,6 @@ func (c *configType) load() {
 	c.app.load()
 	c.postgres = postgres{}
 	c.postgres.load()
-	c.server = server{}
-	c.server.load()
 
 }
 
@@ -43,7 +43,7 @@ func (c *configType) PostgresConfig() instance.PostgresDbConfig {
 }
 
 func (c *configType) ServerPort() string {
-	return "localhost:" + c.server.port
+	return "localhost:" + c.app.port
 }
 
 func (c *configType) AppName() string {
@@ -55,5 +55,7 @@ func (c *configType) IsDevelopment() bool {
 }
 
 func init() {
-	Env.load()
+	config := configType{}
+	config.load()
+	Env = &config
 }

@@ -2,11 +2,12 @@ package instance
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/pkg/errors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/plugin/dbresolver"
-	"strconv"
 )
 
 type PostgresDB interface {

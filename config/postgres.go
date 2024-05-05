@@ -3,14 +3,14 @@ package config
 import "github.com/spf13/viper"
 
 type postgres struct {
-	host               string
-	port               int
-	user               string
-	password           string
 	dbName             string
-	sslMode            bool
+	host               string
 	maxIdleConnections *int
 	maxOpenConnections *int
+	password           string
+	port               int
+	sslMode            bool
+	user               string
 }
 
 func (c *postgres) load() {

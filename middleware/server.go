@@ -1,9 +1,11 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
-	"loanManagement/logger"
 	"net/http"
+
+	"loanManagement/logger"
+
+	"github.com/gin-gonic/gin"
 )
 
 func RecoverGinError() func(c *gin.Context, err interface{}) {
@@ -14,13 +16,13 @@ func RecoverGinError() func(c *gin.Context, err interface{}) {
 		var e error
 		if err == nil {
 			e = nil
-			logger.Logger.Info("nil error in gin recovery handler")
+			logger.Log.Info("nil error in gin recovery handler")
 		} else {
 			e = err.(error)
 			message = gin.H{
 				"error": e.Error(),
 			}
-			logger.Logger.Error("gin recovery handler", logger.Any("error", e))
+			logger.Log.Error("gin recovery handler", logger.Any("error", e))
 		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, message)
 	}

@@ -7,9 +7,9 @@ import (
 	"os"
 )
 
-var Logger *internalLogger
+var Log *logger
 
-type InternalLogger interface {
+type Logger interface {
 	ShutDownLogger() error
 	Info(message string, args ...Field)
 	Infof(message string, args ...interface{})
@@ -20,7 +20,7 @@ type InternalLogger interface {
 	Debug(message string, args ...Field)
 }
 
-type internalLogger struct {
+type logger struct {
 	zapLogger     *zap.Logger
 	sugaredLogger *zap.SugaredLogger
 }
@@ -55,44 +55,44 @@ func init() {
 		},
 	}
 	zapLogger := zap.Must(loggerConfig.Build())
-	Logger = &internalLogger{
+	Log = &logger{
 		zapLogger:     zapLogger,
 		sugaredLogger: zapLogger.Sugar(),
 	}
 }
 
-func (l *internalLogger) ShutDownLogger() error {
-	return Logger.zapLogger.Sync()
+func (l *logger) ShutDownLogger() error {
+	return Log.zapLogger.Sync()
 }
 
-func (l *internalLogger) Info(message string, args ...Field) {
-	Logger.sugaredLogger.Info(message, args)
+func (l *logger) Info(message string, args ...Field) {
+	Log.sugaredLogger.Info(message, args)
 }
 
-func (l *internalLogger) Infof(message string, args ...interface{}) {
-	Logger.sugaredLogger.Infof(message, args)
+func (l *logger) Infof(message string, args ...interface{}) {
+	Log.sugaredLogger.Infof(message, args)
 }
 
-func (l *internalLogger) Error(message string, args ...Field) {
-	Logger.sugaredLogger.Error(message, args)
+func (l *logger) Error(message string, args ...Field) {
+	Log.sugaredLogger.Error(message, args)
 }
 
-func (l *internalLogger) Errorf(message string, args ...interface{}) {
-	Logger.sugaredLogger.Errorf(message, args)
+func (l *logger) Errorf(message string, args ...interface{}) {
+	Log.sugaredLogger.Errorf(message, args)
 }
 
-func (l *internalLogger) Warn(message string, args ...Field) {
-	Logger.sugaredLogger.Warn(message, args)
+func (l *logger) Warn(message string, args ...Field) {
+	Log.sugaredLogger.Warn(message, args)
 }
 
-func (l *internalLogger) Warnf(message string, args ...interface{}) {
-	Logger.sugaredLogger.Warnf(message, args)
+func (l *logger) Warnf(message string, args ...interface{}) {
+	Log.sugaredLogger.Warnf(message, args)
 }
 
-func (l *internalLogger) Debug(message string, args ...Field) {
-	Logger.sugaredLogger.Debug(message, args)
+func (l *logger) Debug(message string, args ...Field) {
+	Log.sugaredLogger.Debug(message, args)
 }
 
-func (l *internalLogger) Debugf(message string, args ...interface{}) {
-	Logger.sugaredLogger.Debugf(message, args)
+func (l *logger) Debugf(message string, args ...interface{}) {
+	Log.sugaredLogger.Debugf(message, args)
 }

@@ -1,8 +1,9 @@
 package model
 
 import (
-	"loanManagement/constant"
 	"time"
+
+	"loanManagement/constant"
 )
 
 type ScheduleRepayment struct {
