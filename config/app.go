@@ -10,7 +10,8 @@ type app struct {
 
 func (a *app) load() {
 	viper.SetEnvPrefix("APP")
-	a.name = viper.GetString("NAME")
+
 	a.isDevelopment = viper.GetBool("IS_DEVELOPMENT")
+	a.name = viper.GetString("NAME")
 	a.port = viper.GetString("PORT")
 }

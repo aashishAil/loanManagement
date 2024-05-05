@@ -15,12 +15,9 @@ type postgres struct {
 
 func (c *postgres) load() {
 	viper.SetEnvPrefix("POSTGRES")
-	c.host = viper.GetString("HOST")
-	c.port = viper.GetInt("PORT")
-	c.user = viper.GetString("USER")
-	c.password = viper.GetString("PASSWORD")
+
 	c.dbName = viper.GetString("DB_NAME")
-	c.sslMode = viper.GetBool("SSL_MODE")
+	c.host = viper.GetString("HOST")
 	idleConnections := viper.GetInt("MAX_IDLE_CONNECTIONS")
 	if idleConnections != 0 {
 		c.maxIdleConnections = &idleConnections
@@ -29,4 +26,8 @@ func (c *postgres) load() {
 	if openConnections != 0 {
 		c.maxOpenConnections = &openConnections
 	}
+	c.password = viper.GetString("PASSWORD")
+	c.port = viper.GetInt("PORT")
+	c.sslMode = viper.GetBool("SSL_MODE")
+	c.user = viper.GetString("USER")
 }
