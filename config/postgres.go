@@ -9,7 +9,7 @@ type postgres struct {
 	maxOpenConnections *int
 	password           string
 	port               int
-	sslMode            bool
+	sslMode            string
 	user               string
 }
 
@@ -28,6 +28,6 @@ func (c *postgres) load() {
 	}
 	c.password = viper.GetString("PASSWORD")
 	c.port = viper.GetInt("PORT")
-	c.sslMode = viper.GetBool("SSL_MODE")
+	c.sslMode = viper.GetString("SSL_MODE")
 	c.user = viper.GetString("USER")
 }

@@ -2,8 +2,6 @@ package instance
 
 import (
 	"fmt"
-	"strconv"
-
 	"github.com/pkg/errors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -57,8 +55,30 @@ func (d *postgresDB) GetWritableDb() *gorm.DB {
 }
 
 func NewPostgresDatabase(config PostgresDbConfig) (PostgresDB, error) {
-	connectionUrl := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s",
-		config.Host, config.User, config.Password, config.DbName, config.Port, strconv.FormatBool(config.SslMode))
+	connectionUrl := ""
+	if config.Host != "" {
+		connectionUrl += fmt.Sprintf("host=%s ", config.Host)
+	}
+
+	if config.User != "" {
+		connectionUrl += fmt.Sprintf("user=%s ", config.User)
+	}
+
+	if config.Password != "" {
+		connectionUrl += fmt.Sprintf("password=%s ", config.Password)
+	}
+
+	if config.DbName != "" {
+		connectionUrl += fmt.Sprintf("dbname=%s ", config.DbName)
+	}
+
+	if config.Port != 0 {
+		connectionUrl += fmt.Sprintf("port=%d ", config.Port)
+	}
+
+	if config.SslMode != "" {
+		connectionUrl += fmt.Sprintf("sslmode=%s ", config.SslMode)
+	}
 	db := postgresDB{
 		connectionUrl:      connectionUrl,
 		maxIdleConnections: config.MaxIdleConnections,

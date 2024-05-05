@@ -9,3 +9,7 @@ type User struct {
 	EncryptedPassword string            `json:"encryptedPassword" gorm:"column:encrypted_password"`
 	Type              constant.UserType `json:"type" gorm:"column:type"`
 }
+
+func (User) TableName() string {
+	return "user"
+}

@@ -12,6 +12,7 @@ type Config interface {
 	ServerPort() string
 	AppName() string
 	IsDevelopment() bool
+	JwtSigningKey() string
 }
 type configType struct {
 	app      app
@@ -52,6 +53,10 @@ func (c *configType) AppName() string {
 
 func (c *configType) IsDevelopment() bool {
 	return c.app.isDevelopment
+}
+
+func (c *configType) JwtSigningKey() string {
+	return c.app.jwtKey
 }
 
 func init() {

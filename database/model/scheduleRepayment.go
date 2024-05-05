@@ -16,3 +16,7 @@ type ScheduleRepayment struct {
 	ScheduledDate   time.Time                      `json:"scheduledDate" gorm:"column:scheduled_date"`
 	Loan            Loan                           `json:"loan" gorm:"foreignKey:loan_id"`
 }
+
+func (ScheduleRepayment) TableName() string {
+	return "schedule_repayment"
+}

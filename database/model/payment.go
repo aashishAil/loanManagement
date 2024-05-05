@@ -9,3 +9,7 @@ type Payment struct {
 	Currency constant.Currency `json:"currency" gorm:"column:currency;default:'INR'"`
 	Loan     Loan              `json:"loan" gorm:"foreignKey:loan_id"`
 }
+
+func (Payment) TableName() string {
+	return "payment"
+}

@@ -20,3 +20,7 @@ type Loan struct {
 	DisbursalDate     time.Time           `json:"disbursalDate" gorm:"column:disbursal_date;default:(now() at time zone 'utc')"`
 	User              User                `json:"user" gorm:"foreignKey:user_id"`
 }
+
+func (Loan) TableName() string {
+	return "loan"
+}
