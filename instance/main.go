@@ -11,6 +11,7 @@ import (
 
 type Instance interface {
 	DatabaseInstance() dbInstance.PostgresDB
+	ContextUtil() util.Context
 	JwtUtil() util.Jwt
 	PasswordUtil() util.Password
 }
@@ -18,6 +19,7 @@ type Instance interface {
 type instance struct {
 	dbInstance dbInstance.PostgresDB
 
+	contextUtil  util.Context
 	jwtUtil      util.Jwt
 	passwordUtil util.Password
 }
@@ -33,12 +35,14 @@ func Init() (Instance, error) {
 		return nil, errors.Wrap(err, "failed to create database instance")
 	}
 
+	contextUtil := util.NewContext()
 	jwtUtil := util.NewJwt(jwtSigningKey)
 	passwordUtil := util.NewPassword()
 
 	instance := instance{
 		dbInstance: databaseInstance,
 
+		contextUtil:  contextUtil,
 		jwtUtil:      jwtUtil,
 		passwordUtil: passwordUtil,
 	}
@@ -48,6 +52,10 @@ func Init() (Instance, error) {
 
 func (i *instance) DatabaseInstance() dbInstance.PostgresDB {
 	return i.dbInstance
+}
+
+func (i *instance) ContextUtil() util.Context {
+	return i.contextUtil
 }
 
 func (i *instance) JwtUtil() util.Jwt {
