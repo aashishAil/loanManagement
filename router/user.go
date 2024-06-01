@@ -20,11 +20,13 @@ type User interface {
 type user struct {
 	userHandler handler.User
 
+	contextUtl   util.Context
 	jwtUtil      util.Jwt
 	passwordUtil util.Password
 }
 
 func (u *user) Login(c *gin.Context) {
+	ctx := u.contextUtl.CreateContextFromGinContext(c)
 	input := routerModel.UserLoginInput{}
 	if err := c.BindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, constant.InvalidInputResponse)
@@ -36,7 +38,7 @@ func (u *user) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := u.userHandler.CheckValidCredentials(input.Email, input.Password)
+	token, err := u.userHandler.CheckValidCredentials(ctx, input.Email, input.Password)
 	if err != nil {
 		statusCode := http.StatusInternalServerError
 		errResp := constant.DefaultErrorResponse
@@ -70,12 +72,14 @@ func (u *user) Login(c *gin.Context) {
 func NewUser(
 	userHandler handler.User,
 
+	contextUtl util.Context,
 	jwtUtil util.Jwt,
 	passwordUtil util.Password,
 ) User {
 	return &user{
 		userHandler: userHandler,
 
+		contextUtl:   contextUtl,
 		jwtUtil:      jwtUtil,
 		passwordUtil: passwordUtil,
 	}

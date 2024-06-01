@@ -22,19 +22,19 @@ func Init(instance instance.Instance) Router {
 
 	dbInstance := instance.DatabaseInstance()
 
-	userRepo := repo.NewUser(dbInstance)
+	userRepo := repo.NewUser(dbInstance, passwordUtil)
 
 	userHandler := handler.NewUser(
 		userRepo,
 
 		jwtUtil,
-		passwordUtil,
 	)
 
 	defaultRouter := NewDefault()
 	userRouter := NewUser(
 		userHandler,
 
+		instance.ContextUtil(),
 		instance.JwtUtil(),
 		instance.PasswordUtil(),
 	)

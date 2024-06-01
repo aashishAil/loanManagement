@@ -1,47 +1,42 @@
 package handler
 
 import (
-	"github.com/google/uuid"
+	"context"
+	"net/http"
+
 	"loanManagement/appError"
 	"loanManagement/logger"
 	"loanManagement/repo"
+	repoModel "loanManagement/repo/model"
 	"loanManagement/util"
-	"net/http"
 
 	"github.com/pkg/errors"
 )
 
 type User interface {
-	CheckValidCredentials(email, password string) (string, error)
+	CheckValidCredentials(ctx context.Context, email, password string) (string, error)
 }
 
 type user struct {
 	userRepo repo.User
 
-	jwtUtil      util.Jwt
-	passwordUtil util.Password
+	jwtUtil util.Jwt
 }
 
-func (h *user) CheckValidCredentials(email, password string) (string, error) {
-	encryptedPassword, err := h.passwordUtil.Hash(password)
+func (h *user) CheckValidCredentials(ctx context.Context, email, password string) (string, error) {
+	userI, err := h.userRepo.FindOne(ctx, repoModel.FindOneUserInput{
+		Email:    email,
+		Password: password,
+	})
 	if err != nil {
-		logger.Log.Error("failed to hash password")
-		return "", appError.Custom{
-			Err:  errors.Wrap(err, "failed to hash password"),
-			Code: http.StatusInternalServerError,
-		}
-	}
-
-	userI, err := h.userRepo.FindOne(email, encryptedPassword)
-	if err != nil {
-		logger.Log.Error("failed to find user")
+		logger.Log.Error("failed to find user", logger.Error(err))
 		return "", appError.Custom{
 			Err:  errors.Wrap(err, "failed to find user"),
 			Code: http.StatusInternalServerError,
 		}
 	}
 
-	if userI.ID == uuid.Nil {
+	if userI == nil {
 		logger.Log.Info("user not found", logger.String("email", email))
 		return "", appError.Custom{
 			Err:  errors.New("user not found"),
@@ -49,9 +44,9 @@ func (h *user) CheckValidCredentials(email, password string) (string, error) {
 		}
 	}
 
-	token, err := h.jwtUtil.GenerateToken(userI)
+	token, err := h.jwtUtil.GenerateToken(*userI)
 	if err != nil {
-		logger.Log.Error("failed to generate token")
+		logger.Log.Error("failed to generate token", logger.Error(err))
 		return "", appError.Custom{
 			Err:  errors.Wrap(err, "failed to generate token"),
 			Code: http.StatusInternalServerError,
@@ -65,12 +60,10 @@ func NewUser(
 	userRepo repo.User,
 
 	jwtUtil util.Jwt,
-	passwordUtil util.Password,
 ) User {
 	return &user{
 		userRepo: userRepo,
 
-		jwtUtil:      jwtUtil,
-		passwordUtil: passwordUtil,
+		jwtUtil: jwtUtil,
 	}
 }
