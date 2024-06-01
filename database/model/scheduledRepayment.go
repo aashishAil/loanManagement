@@ -6,7 +6,7 @@ import (
 	"loanManagement/constant"
 )
 
-type ScheduleRepayment struct {
+type ScheduledRepayment struct {
 	BaseWithUpdatedAt
 	LoanID          string                         `json:"loanID" gorm:"column:loan_id"`
 	ScheduledAmount int64                          `json:"scheduledAmount" gorm:"column:scheduled_amount"`
@@ -17,6 +17,6 @@ type ScheduleRepayment struct {
 	Loan            Loan                           `json:"loan" gorm:"foreignKey:loan_id"`
 }
 
-func (ScheduleRepayment) TableName() string {
-	return "schedule_repayment"
+func (ScheduledRepayment) TableName() string {
+	return "scheduled_repayment"
 }
