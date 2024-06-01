@@ -13,7 +13,7 @@ type Password interface {
 
 type password struct{}
 
-func (p *password) Hash(password string) (string, error) {
+func (util *password) Hash(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
 		logger.Log.Error(err.Error())
