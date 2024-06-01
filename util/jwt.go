@@ -26,7 +26,7 @@ type customClaims struct {
 	jwtLib.RegisteredClaims
 }
 
-func (j *jwt) GenerateToken(user databaseModel.User) (string, error) {
+func (util *jwt) GenerateToken(user databaseModel.User) (string, error) {
 	currentTime := time.Now()
 	claims := customClaims{
 		Type: user.Type,
@@ -39,7 +39,7 @@ func (j *jwt) GenerateToken(user databaseModel.User) (string, error) {
 
 	token := jwtLib.NewWithClaims(jwtLib.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString([]byte(j.signingKey))
+	tokenString, err := token.SignedString([]byte(util.signingKey))
 	if err != nil {
 		logger.Log.Error(err.Error(), logger.String("userID", user.ID.String()))
 		return tokenString, errors.Wrap(err, "failed to generate token")
@@ -48,10 +48,10 @@ func (j *jwt) GenerateToken(user databaseModel.User) (string, error) {
 	return tokenString, nil
 }
 
-func (j *jwt) ValidateToken(tokenString string) (databaseModel.User, error) {
+func (util *jwt) ValidateToken(tokenString string) (databaseModel.User, error) {
 	user := databaseModel.User{}
 	token, err := jwtLib.ParseWithClaims(tokenString, &customClaims{}, func(token *jwtLib.Token) (interface{}, error) {
-		return []byte(j.signingKey), nil
+		return []byte(util.signingKey), nil
 	})
 	if err != nil {
 		logger.Log.Error(err.Error())
