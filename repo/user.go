@@ -31,7 +31,7 @@ func (repo *user) FindOne(ctx context.Context, data repoModel.FindOneUserInput) 
 		return nil, errors.Wrap(err, "failed to hash password")
 	}
 
-	err = repo.dbInstance.GetReadableDb().Where(&databaseModel.User{
+	err = repo.dbInstance.GetReadableDb().WithContext(ctx).Where(&databaseModel.User{
 		Email:             data.Email,
 		EncryptedPassword: encryptedPassword,
 	}).First(&userI).Error

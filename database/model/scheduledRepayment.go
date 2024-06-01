@@ -4,11 +4,13 @@ import (
 	"time"
 
 	"loanManagement/constant"
+
+	"github.com/google/uuid"
 )
 
 type ScheduledRepayment struct {
 	BaseWithUpdatedAt
-	LoanID          string                         `json:"loanID" gorm:"column:loan_id"`
+	LoanID          uuid.UUID                      `json:"loanID" gorm:"column:loan_id"`
 	ScheduledAmount int64                          `json:"scheduledAmount" gorm:"column:scheduled_amount"`
 	PendingAmount   int64                          `json:"pendingAmount" gorm:"column:pending_amount"`
 	Currency        constant.Currency              `json:"currency" gorm:"column:currency;default:'INR'"`
