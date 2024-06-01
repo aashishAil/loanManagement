@@ -24,6 +24,10 @@ func Bool(key string, val bool) Field {
 	return zap.Bool(key, val)
 }
 
+func Error(error error) Field {
+	return zap.Error(error)
+}
+
 func Any(key string, val interface{}) Field {
 	return zap.Any(key, val)
 }
