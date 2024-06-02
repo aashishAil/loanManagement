@@ -33,21 +33,21 @@ func attachRoutes(r *gin.Engine) error {
 	}
 
 	appRouter := router.Init(appInstance)
-	middlewareI := middleware.Init()
+	middlewareI := middleware.Init(appInstance.ContextUtil(), appInstance.JwtUtil())
 	r.Use(gin.CustomRecovery(middlewareI.Server().RecoverGinError()))
 
 	apiGroup := r.Group("/api")
 
 	apiGroup.GET("/ping", appRouter.Fallback().PingForGinRoute)
 
-	attachUserRoutes(apiGroup.Group("/user"), appRouter.User())
+	attachUserRoutes(apiGroup.Group("/user"), appRouter.User(), middlewareI)
 
 	r.NoRoute(appRouter.Fallback().NoRouteForGinHandler())
 
 	return nil
 }
 
-func attachUserRoutes(router *gin.RouterGroup, customerRouter router.User) {
+func attachUserRoutes(router *gin.RouterGroup, customerRouter router.User, middlewareI middleware.Middleware) {
 	router.POST("/login", customerRouter.Login)
 	// TODO: attach authentication middleware
 }
