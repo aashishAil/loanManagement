@@ -33,7 +33,8 @@ func attachRoutes(r *gin.Engine) error {
 	}
 
 	appRouter := router.Init(appInstance)
-	r.Use(gin.CustomRecovery(middleware.RecoverGinError()))
+	middlewareI := middleware.Init()
+	r.Use(gin.CustomRecovery(middlewareI.Server().RecoverGinError()))
 
 	apiGroup := r.Group("/api")
 

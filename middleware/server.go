@@ -8,7 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RecoverGinError() func(c *gin.Context, err interface{}) {
+type Server interface {
+	RecoverGinError() func(c *gin.Context, err interface{})
+}
+
+type server struct {
+}
+
+func (middleware *server) RecoverGinError() func(c *gin.Context, err interface{}) {
 	handler := func(c *gin.Context, err interface{}) {
 		message := gin.H{
 			"error": "unknown error",
@@ -22,9 +29,13 @@ func RecoverGinError() func(c *gin.Context, err interface{}) {
 			message = gin.H{
 				"error": e.Error(),
 			}
-			logger.Log.Error("gin recovery handler", logger.Any("error", e))
+			logger.Log.Error("gin recovery handler", logger.Error(e))
 		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, message)
 	}
 	return handler
+}
+
+func NewServer() Server {
+	return &server{}
 }
