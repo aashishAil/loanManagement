@@ -1,7 +1,7 @@
 package model
 
 import (
-	"gorm.io/gorm"
+	dbInstance "loanManagement/database/instance"
 	"time"
 
 	"loanManagement/constant"
@@ -14,14 +14,14 @@ type BulkCreateScheduledRepaymentInput struct {
 	ScheduledAmount int64
 	Currency        constant.Currency
 	ScheduledDates  []time.Time
-	TxDb            *gorm.DB
+	TxDb            *dbInstance.PostgresTransactionDB
 }
 
 type UpdateScheduledRepaymentInput struct {
 	ID            uuid.UUID
 	PendingAmount *int64
 	Status        *constant.SchedulePaymentStatus
-	TxDb          *gorm.DB
+	TxDb          *dbInstance.PostgresTransactionDB
 }
 
 type FindAllScheduledRepaymentInput struct {

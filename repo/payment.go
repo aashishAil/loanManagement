@@ -29,7 +29,7 @@ func (repo *payment) Create(ctx context.Context, data repoModel.CreatePaymentInp
 
 	db := repo.dbInstance.GetWritableDb()
 	if data.TxDb != nil {
-		db = data.TxDb
+		db = (*data.TxDb).Get()
 	}
 	result := db.WithContext(ctx).Create(&paymentI)
 	if result.Error != nil {

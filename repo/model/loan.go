@@ -1,10 +1,12 @@
 package model
 
 import (
-	"github.com/google/uuid"
-	"gorm.io/gorm"
-	"loanManagement/constant"
 	"time"
+
+	"loanManagement/constant"
+	dbInstance "loanManagement/database/instance"
+
+	"github.com/google/uuid"
 )
 
 type CreateLoanInput struct {
@@ -13,7 +15,7 @@ type CreateLoanInput struct {
 	Currency      constant.Currency
 	Term          int64
 	DisbursalDate time.Time
-	TxDb          *gorm.DB
+	TxDb          *dbInstance.PostgresTransactionDB
 }
 
 type FindOneLoanInput struct {
@@ -30,5 +32,5 @@ type UpdateLoanInput struct {
 	Status          constant.LoanStatus
 	DisbursalAmount *int64
 	DisbursalDate   *time.Time
-	TxDb            *gorm.DB
+	TxDb            *dbInstance.PostgresTransactionDB
 }

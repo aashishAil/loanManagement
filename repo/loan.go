@@ -38,7 +38,7 @@ func (repo *loan) Create(ctx context.Context, data repoModel.CreateLoanInput) (*
 
 	db := repo.dbInstance.GetWritableDb()
 	if data.TxDb != nil {
-		db = data.TxDb
+		db = (*data.TxDb).Get()
 	}
 	result := db.WithContext(ctx).Create(&loanI)
 	if result.Error != nil {
@@ -91,7 +91,7 @@ func (repo *loan) Update(ctx context.Context, data repoModel.UpdateLoanInput) er
 
 	db := repo.dbInstance.GetWritableDb()
 	if data.TxDb != nil {
-		db = data.TxDb
+		db = (*data.TxDb).Get()
 	}
 
 	result := db.WithContext(ctx).Model(&databaseModel.Loan{

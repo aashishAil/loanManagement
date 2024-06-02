@@ -51,7 +51,7 @@ func (repo *scheduledRepayment) BulkCreate(ctx context.Context, data repoModel.B
 
 	db := repo.dbInstance.GetWritableDb()
 	if data.TxDb != nil {
-		db = data.TxDb
+		db = (*data.TxDb).Get()
 	}
 
 	result := db.WithContext(ctx).Create(scheduledRepayments)
@@ -76,7 +76,7 @@ func (repo *scheduledRepayment) Update(ctx context.Context, data repoModel.Updat
 
 	db := repo.dbInstance.GetWritableDb()
 	if data.TxDb != nil {
-		db = data.TxDb
+		db = (*data.TxDb).Get()
 	}
 
 	result := db.WithContext(ctx).Model(&databaseModel.ScheduledRepayment{

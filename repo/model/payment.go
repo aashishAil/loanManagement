@@ -1,8 +1,8 @@
 package model
 
 import (
-	"gorm.io/gorm"
 	"loanManagement/constant"
+	dbInstance "loanManagement/database/instance"
 
 	"github.com/google/uuid"
 )
@@ -12,5 +12,5 @@ type CreatePaymentInput struct {
 	UserID   uuid.UUID
 	Amount   int64
 	Currency constant.Currency
-	TxDb     *gorm.DB
+	TxDb     *dbInstance.PostgresTransactionDB
 }
