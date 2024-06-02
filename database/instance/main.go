@@ -11,6 +11,7 @@ import (
 type PostgresDB interface {
 	GetReadableDb() *gorm.DB
 	GetWritableDb() *gorm.DB
+	GetTransactionDb() *PostgresTransactionDB
 }
 
 type postgresDB struct {
@@ -21,7 +22,9 @@ type postgresDB struct {
 }
 
 func (d *postgresDB) initialize() error {
-	db, err := gorm.Open(postgres.Open(d.connectionUrl), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(d.connectionUrl), &gorm.Config{
+		SkipDefaultTransaction: true, // writes should not be run in a default transaction
+	})
 	if err != nil {
 		return errors.Wrap(err, "failed to connect to database")
 	}
@@ -51,7 +54,14 @@ func (d *postgresDB) GetReadableDb() *gorm.DB {
 }
 
 func (d *postgresDB) GetWritableDb() *gorm.DB {
+	d.database.Begin()
 	return d.database
+}
+
+func (d *postgresDB) GetTransactionDb() *PostgresTransactionDB {
+	txnDb := d.GetWritableDb().Begin()
+	localTransactionI := NewPostgresTransactionDB(txnDb)
+	return &localTransactionI
 }
 
 func NewPostgresDatabase(config PostgresDbConfig) (PostgresDB, error) {
