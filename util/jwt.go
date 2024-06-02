@@ -6,6 +6,7 @@ import (
 	"loanManagement/constant"
 	databaseModel "loanManagement/database/model"
 	"loanManagement/logger"
+	"loanManagement/model"
 
 	jwtLib "github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -14,6 +15,7 @@ import (
 
 type Jwt interface {
 	GenerateToken(user databaseModel.User) (string, error)
+	ValidateToken(tokenString string) (*model.LoggedInUser, error)
 }
 
 type jwt struct {
@@ -48,30 +50,30 @@ func (util *jwt) GenerateToken(user databaseModel.User) (string, error) {
 	return tokenString, nil
 }
 
-func (util *jwt) ValidateToken(tokenString string) (databaseModel.User, error) {
-	user := databaseModel.User{}
+func (util *jwt) ValidateToken(tokenString string) (*model.LoggedInUser, error) {
+	user := model.LoggedInUser{}
 	token, err := jwtLib.ParseWithClaims(tokenString, &customClaims{}, func(token *jwtLib.Token) (interface{}, error) {
 		return []byte(util.signingKey), nil
 	})
 	if err != nil {
 		logger.Log.Error(err.Error())
-		return user, errors.Wrap(err, "failed to parse token")
+		return nil, errors.Wrap(err, "failed to parse token")
 	}
 
 	claims, ok := token.Claims.(*customClaims)
 	if !ok {
 		logger.Log.Error("failed to parse claims")
-		return user, errors.New("failed to parse claims")
+		return nil, errors.New("failed to parse claims")
 	}
 
 	user.ID, err = uuid.Parse(claims.RegisteredClaims.ID)
 	if err != nil {
 		logger.Log.Error(err.Error())
-		return user, errors.Wrap(err, "failed to parse userID")
+		return nil, errors.Wrap(err, "failed to parse userID")
 	}
 	user.Type = claims.Type
 
-	return user, nil
+	return &user, nil
 }
 
 func NewJwt(signingKey string) Jwt {
