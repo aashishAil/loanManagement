@@ -37,11 +37,11 @@ func attachRoutes(r *gin.Engine) error {
 
 	apiGroup := r.Group("/api")
 
-	apiGroup.GET("/ping", appRouter.Default().PingForGinRoute)
+	apiGroup.GET("/ping", appRouter.Fallback().PingForGinRoute)
 
 	attachUserRoutes(apiGroup.Group("/user"), appRouter.User())
 
-	r.NoRoute(appRouter.Default().NoRouteForGinHandler())
+	r.NoRoute(appRouter.Fallback().NoRouteForGinHandler())
 
 	return nil
 }

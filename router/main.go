@@ -7,13 +7,13 @@ import (
 )
 
 type Router interface {
-	Default() Default
+	Fallback() Fallback
 	User() User
 }
 
 type router struct {
-	defaultRouter Default
-	userRouter    User
+	fallback Fallback
+	user     User
 }
 
 func Init(instance instance.Instance) Router {
@@ -40,17 +40,17 @@ func Init(instance instance.Instance) Router {
 	)
 
 	router := router{
-		defaultRouter: defaultRouter,
-		userRouter:    userRouter,
+		fallback: defaultRouter,
+		user:     userRouter,
 	}
 
 	return &router
 }
 
-func (r *router) Default() Default {
-	return r.defaultRouter
+func (r *router) Fallback() Fallback {
+	return r.fallback
 }
 
 func (r *router) User() User {
-	return r.userRouter
+	return r.user
 }
