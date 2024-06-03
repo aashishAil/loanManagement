@@ -40,6 +40,7 @@ func (c *configType) PostgresConfig() instance.PostgresDbConfig {
 		SslMode:            c.postgres.sslMode,
 		MaxIdleConnections: c.postgres.maxIdleConnections,
 		MaxOpenConnections: c.postgres.maxOpenConnections,
+		EnableDebugMode:    c.IsDevelopment(),
 	}
 }
 

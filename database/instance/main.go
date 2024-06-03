@@ -2,11 +2,14 @@ package instance
 
 import (
 	"fmt"
+
+	"loanManagement/logger"
+
 	"github.com/pkg/errors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
 	"gorm.io/plugin/dbresolver"
-	"loanManagement/logger"
 )
 
 type PostgresDB interface {
@@ -25,6 +28,7 @@ type postgresDB struct {
 func (d *postgresDB) initialize() error {
 	db, err := gorm.Open(postgres.Open(d.connectionUrl), &gorm.Config{
 		SkipDefaultTransaction: true, // writes should not be run in a default transaction
+		Logger:                 gormLogger.Default.LogMode(gormLogger.Info),
 	})
 	if err != nil {
 		return errors.Wrap(err, "failed to connect to database")

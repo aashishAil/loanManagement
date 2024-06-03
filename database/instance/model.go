@@ -11,6 +11,7 @@ type PostgresDbConfig struct {
 	SslMode            string
 	MaxIdleConnections *int
 	MaxOpenConnections *int
+	EnableDebugMode    bool
 }
 
 var ErrNoRecordFound = gorm.ErrRecordNotFound
