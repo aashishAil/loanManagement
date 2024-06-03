@@ -50,10 +50,10 @@ func (router *user) Login(c *gin.Context) {
 		statusCode := http.StatusInternalServerError
 		errResp := constant.DefaultErrorResponse
 
-		var customErr appError.Custom
+		customErr := appError.Custom{}
 		ok := errors.As(err, &customErr)
 		if ok {
-			logger.Log.Error("handled error",
+			logger.Log.Info("handled error",
 				logger.Any("err", customErr),
 				logger.String("api", "Login"),
 			)
@@ -124,10 +124,10 @@ func (router *user) CreateLoan(c *gin.Context) {
 		statusCode := http.StatusInternalServerError
 		errResp := constant.DefaultErrorResponse
 
-		var customErr appError.Custom
+		customErr := appError.Custom{}
 		ok := errors.As(err, &customErr)
 		if ok {
-			logger.Log.Error("handled error",
+			logger.Log.Info("handled error",
 				logger.Any("err", customErr),
 				logger.String("api", "CreateLoan"),
 			)

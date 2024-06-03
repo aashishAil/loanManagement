@@ -40,9 +40,16 @@ func (h *user) CheckValidCredentials(ctx context.Context, email, password string
 		Password: password,
 	})
 	if err != nil {
+		customErr := appError.Custom{}
+		if errors.As(err, &customErr) {
+			return "", appError.Custom{
+				Err:  customErr.Err,
+				Code: http.StatusUnauthorized,
+			}
+		}
 		logger.Log.Error("failed to find user", logger.Error(err))
 		return "", appError.Custom{
-			Err:  errors.Wrap(err, "failed to find user"),
+			Err:  errors.New("failed to find user"),
 			Code: http.StatusInternalServerError,
 		}
 	}
@@ -59,7 +66,7 @@ func (h *user) CheckValidCredentials(ctx context.Context, email, password string
 	if err != nil {
 		logger.Log.Error("failed to generate token", logger.Error(err))
 		return "", appError.Custom{
-			Err:  errors.Wrap(err, "failed to generate token"),
+			Err:  errors.New("failed to generate token"),
 			Code: http.StatusInternalServerError,
 		}
 	}
