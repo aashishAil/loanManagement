@@ -10,11 +10,11 @@ import (
 )
 
 type BulkCreateScheduledRepaymentInput struct {
-	LoanID          uuid.UUID
-	ScheduledAmount int64
-	Currency        constant.Currency
-	ScheduledDates  []time.Time
-	TxDb            *dbInstance.PostgresTransactionDB
+	LoanID         uuid.UUID
+	LoanAmount     int64
+	Currency       constant.Currency
+	ScheduledDates []time.Time
+	TxDb           *dbInstance.PostgresTransactionDB
 }
 
 type UpdateScheduledRepaymentInput struct {

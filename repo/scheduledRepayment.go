@@ -36,13 +36,21 @@ func (repo *scheduledRepayment) FindAll(ctx context.Context, data repoModel.Find
 
 func (repo *scheduledRepayment) BulkCreate(ctx context.Context, data repoModel.BulkCreateScheduledRepaymentInput) error {
 	scheduledRepayments := make([]*databaseModel.ScheduledRepayment, len(data.ScheduledDates))
+	amountInLowestCurrency := data.LoanAmount * 100
+	totalDate := len(data.ScheduledDates)
+	scheduledAmount := amountInLowestCurrency / int64(totalDate)
+	diffAmount := amountInLowestCurrency - (scheduledAmount * int64(totalDate))
 
 	for i := range data.ScheduledDates {
+		repaymentAmount := scheduledAmount
+		if i == 0 {
+			repaymentAmount += diffAmount
+		}
 		scheduledDate := data.ScheduledDates[i]
 		scheduledRepayments[i] = &databaseModel.ScheduledRepayment{
 			LoanID:          data.LoanID,
-			ScheduledAmount: data.ScheduledAmount,
-			PendingAmount:   data.ScheduledAmount,
+			ScheduledAmount: repaymentAmount,
+			PendingAmount:   repaymentAmount,
 			Currency:        data.Currency,
 			Status:          constant.SchedulePaymentStatusPending,
 			ScheduledDate:   scheduledDate,
