@@ -5,6 +5,9 @@ type Response struct {
 }
 
 var (
+	CustomerOnlyRouteResponse = Response{
+		Error: "user should be a customer",
+	}
 	DefaultErrorResponse = Response{
 		Error: "something went wrong",
 	}
@@ -14,8 +17,20 @@ var (
 	EmptyPasswordResponse = Response{
 		Error: "password cannot be empty",
 	}
+	InvalidAmountResponse = Response{
+		Error: "invalid amount",
+	}
+	InvalidCurrencyResponse = Response{
+		Error: "currency cannot be empty",
+	}
 	InvalidInputResponse = Response{
 		Error: "invalid input",
+	}
+	InvalidTermResponse = Response{
+		Error: "invalid term",
+	}
+	InvalidDisbursalDateResponse = Response{
+		Error: "invalid disbursal date",
 	}
 	MissingAuthTokenResponse = Response{
 		Error: "missing auth token",

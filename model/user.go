@@ -6,6 +6,6 @@ import (
 )
 
 type LoggedInUser struct {
-	ID   uuid.UUID
-	Type constant.UserType
+	ID   uuid.UUID         `json:"id"`
+	Type constant.UserType `json:"type"`
 }

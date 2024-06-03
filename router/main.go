@@ -17,26 +17,35 @@ type router struct {
 }
 
 func Init(instance instance.Instance) Router {
+	contextUtil := instance.ContextUtil()
 	jwtUtil := instance.JwtUtil()
 	passwordUtil := instance.PasswordUtil()
+	timeUtil := instance.TimeUtil()
 
 	dbInstance := instance.DatabaseInstance()
 
+	loanRepo := repo.NewLoan(dbInstance)
+	scheduledRepaymentRepo := repo.NewScheduledRepayment(dbInstance)
 	userRepo := repo.NewUser(dbInstance, passwordUtil)
 
 	userHandler := handler.NewUser(
+		loanRepo,
+		scheduledRepaymentRepo,
 		userRepo,
 
+		dbInstance,
+
 		jwtUtil,
+		timeUtil,
 	)
 
 	defaultRouter := NewDefault()
 	userRouter := NewUser(
 		userHandler,
 
-		instance.ContextUtil(),
-		instance.JwtUtil(),
-		instance.PasswordUtil(),
+		contextUtil,
+		jwtUtil,
+		passwordUtil,
 	)
 
 	router := router{

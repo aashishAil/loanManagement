@@ -12,6 +12,9 @@ import (
 
 func Start(envConfig config.Config) error {
 	r := gin.Default()
+	if !envConfig.IsDevelopment() {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	err := attachRoutes(r)
 	if err != nil {
@@ -49,5 +52,6 @@ func attachRoutes(r *gin.Engine) error {
 
 func attachUserRoutes(router *gin.RouterGroup, customerRouter router.User, middlewareI middleware.Middleware) {
 	router.POST("/login", customerRouter.Login)
-	// TODO: attach authentication middleware
+	router.Use(middlewareI.Auth().Authenticate())
+	router.POST("/loan", customerRouter.CreateLoan)
 }
