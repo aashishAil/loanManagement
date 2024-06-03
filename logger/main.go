@@ -3,7 +3,6 @@ package logger
 import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"loanManagement/config"
 	"os"
 )
 
@@ -25,14 +24,13 @@ type logger struct {
 	sugaredLogger *zap.SugaredLogger
 }
 
-func init() {
-	envConfig := config.Env
+func Init(isDevelopment bool) {
 	encoderCfg := zap.NewProductionEncoderConfig()
 	encoderCfg.TimeKey = "timestamp"
 	encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder
 
 	logLevel := zap.InfoLevel
-	if envConfig.IsDevelopment() {
+	if isDevelopment {
 		logLevel = zap.DebugLevel
 	}
 

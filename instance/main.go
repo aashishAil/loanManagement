@@ -14,6 +14,7 @@ type Instance interface {
 	ContextUtil() util.Context
 	JwtUtil() util.Jwt
 	PasswordUtil() util.Password
+	TimeUtil() util.Time
 }
 
 type instance struct {
@@ -22,10 +23,11 @@ type instance struct {
 	contextUtil  util.Context
 	jwtUtil      util.Jwt
 	passwordUtil util.Password
+	timeUtil     util.Time
 }
 
 func Init() (Instance, error) {
-
+	logger.Init(config.Env.IsDevelopment())
 	postgresConfig := config.Env.PostgresConfig()
 	jwtSigningKey := config.Env.JwtSigningKey()
 
@@ -38,6 +40,7 @@ func Init() (Instance, error) {
 	contextUtil := util.NewContext()
 	jwtUtil := util.NewJwt(jwtSigningKey)
 	passwordUtil := util.NewPassword()
+	timeUtil := util.NewTime()
 
 	instance := instance{
 		dbInstance: databaseInstance,
@@ -45,6 +48,7 @@ func Init() (Instance, error) {
 		contextUtil:  contextUtil,
 		jwtUtil:      jwtUtil,
 		passwordUtil: passwordUtil,
+		timeUtil:     timeUtil,
 	}
 
 	return &instance, nil
@@ -64,4 +68,8 @@ func (i *instance) JwtUtil() util.Jwt {
 
 func (i *instance) PasswordUtil() util.Password {
 	return i.passwordUtil
+}
+
+func (i *instance) TimeUtil() util.Time {
+	return i.timeUtil
 }
