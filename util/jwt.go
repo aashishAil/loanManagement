@@ -1,7 +1,7 @@
 package util
 
 import (
-	"time"
+	goTime "time"
 
 	"loanManagement/constant"
 	databaseModel "loanManagement/database/model"
@@ -29,11 +29,11 @@ type customClaims struct {
 }
 
 func (util *jwt) GenerateToken(user databaseModel.User) (string, error) {
-	currentTime := time.Now()
+	currentTime := goTime.Now()
 	claims := customClaims{
 		Type: user.Type,
 		RegisteredClaims: jwtLib.RegisteredClaims{
-			ExpiresAt: jwtLib.NewNumericDate(currentTime.Add(time.Hour * 24)),
+			ExpiresAt: jwtLib.NewNumericDate(currentTime.Add(goTime.Hour * 24)),
 			IssuedAt:  jwtLib.NewNumericDate(currentTime),
 			ID:        user.ID.String(),
 		},
