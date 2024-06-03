@@ -5,10 +5,22 @@ type Response struct {
 }
 
 var (
+	DefaultErrorResponse = Response{
+		Error: "something went wrong",
+	}
+	EmptyEmailResponse = Response{
+		Error: "email cannot be empty",
+	}
+	EmptyPasswordResponse = Response{
+		Error: "password cannot be empty",
+	}
 	InvalidInputResponse = Response{
 		Error: "invalid input",
 	}
-	DefaultErrorResponse = Response{
-		Error: "something went wrong",
+	MissingAuthTokenResponse = Response{
+		Error: "missing auth token",
+	}
+	UnableToAuthenticateResponse = Response{
+		Error: "unable to authenticate",
 	}
 )

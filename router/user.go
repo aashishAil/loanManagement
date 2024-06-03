@@ -1,6 +1,7 @@
 package router
 
 import (
+	"errors"
 	"net/http"
 
 	"loanManagement/appError"
@@ -33,8 +34,12 @@ func (u *user) Login(c *gin.Context) {
 		return
 	}
 
-	if input.Email == "" || input.Password == "" {
-		c.JSON(http.StatusBadRequest, constant.InvalidInputResponse)
+	if input.Email == "" {
+		c.JSON(http.StatusBadRequest, constant.EmptyEmailResponse)
+		return
+	}
+	if input.Password == "" {
+		c.JSON(http.StatusBadRequest, constant.EmptyPasswordResponse)
 		return
 	}
 
@@ -43,7 +48,8 @@ func (u *user) Login(c *gin.Context) {
 		statusCode := http.StatusInternalServerError
 		errResp := constant.DefaultErrorResponse
 
-		customErr, ok := err.(appError.Custom)
+		var customErr appError.Custom
+		ok := errors.As(err, &customErr)
 		if ok {
 			logger.Log.Error("handled error",
 				logger.Any("err", customErr),

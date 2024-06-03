@@ -1,11 +1,13 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
+	"net/http"
+
 	"loanManagement/constant"
 	"loanManagement/logger"
 	"loanManagement/util"
-	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Auth interface {
@@ -23,16 +25,12 @@ func (middleware *auth) Authenticate() gin.HandlerFunc {
 		requestPath := c.Request.URL.Path
 		requestMethod := c.Request.Method
 
-		message := gin.H{
-			"error": "unable to authenticate",
-		}
+		message := constant.UnableToAuthenticateResponse
 
 		if authToken == "" {
 			logger.Log.Info("unauthorized access", logger.String("method", requestMethod),
 				logger.String("path", requestPath))
-			message := gin.H{
-				"error": "missing auth token",
-			}
+			message = constant.MissingAuthTokenResponse
 			c.AbortWithStatusJSON(http.StatusUnauthorized, message)
 		}
 
