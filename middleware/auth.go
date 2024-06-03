@@ -32,6 +32,7 @@ func (middleware *auth) Authenticate() gin.HandlerFunc {
 				logger.String("path", requestPath))
 			message = constant.MissingAuthTokenResponse
 			c.AbortWithStatusJSON(http.StatusUnauthorized, message)
+			return
 		}
 
 		userI, err := middleware.jwtUtil.ValidateToken(authToken)
@@ -39,12 +40,14 @@ func (middleware *auth) Authenticate() gin.HandlerFunc {
 			logger.Log.Error("error validating token", logger.Error(err),
 				logger.String("method", requestMethod), logger.String("path", requestPath))
 			c.AbortWithStatusJSON(http.StatusUnauthorized, message)
+			return
 		}
 
 		if userI == nil {
 			logger.Log.Error("nil user obtained", logger.Error(err),
 				logger.String("method", requestMethod), logger.String("path", requestPath))
 			c.AbortWithStatusJSON(http.StatusUnauthorized, message)
+			return
 		}
 
 		ctx := c.Request.Context()
