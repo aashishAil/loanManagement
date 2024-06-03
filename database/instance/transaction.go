@@ -6,7 +6,7 @@ type PostgresTransactionDB interface {
 	CheckError() error
 	Commit() error
 	Get() *gorm.DB
-	Rollback()
+	Rollback() error
 }
 
 type postgresTransactionDB struct {
@@ -25,8 +25,9 @@ func (t *postgresTransactionDB) Get() *gorm.DB {
 	return t.txnDB
 }
 
-func (t *postgresTransactionDB) Rollback() {
-	t.txnDB.Rollback()
+func (t *postgresTransactionDB) Rollback() error {
+	db := t.txnDB.Rollback()
+	return db.Error
 }
 
 func NewPostgresTransactionDB(txnDB *gorm.DB) PostgresTransactionDB {

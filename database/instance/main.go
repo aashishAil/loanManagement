@@ -6,12 +6,13 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/plugin/dbresolver"
+	"loanManagement/logger"
 )
 
 type PostgresDB interface {
 	GetReadableDb() *gorm.DB
 	GetWritableDb() *gorm.DB
-	GetTransactionDb() *PostgresTransactionDB
+	GetTransactionDb() (PostgresTransactionDB, error)
 }
 
 type postgresDB struct {
@@ -58,10 +59,17 @@ func (d *postgresDB) GetWritableDb() *gorm.DB {
 	return d.database
 }
 
-func (d *postgresDB) GetTransactionDb() *PostgresTransactionDB {
+func (d *postgresDB) GetTransactionDb() (PostgresTransactionDB, error) {
 	txnDb := d.GetWritableDb().Begin()
 	localTransactionI := NewPostgresTransactionDB(txnDb)
-	return &localTransactionI
+
+	err := localTransactionI.CheckError()
+	if err != nil {
+		logger.Log.Error("unable to start transaction", logger.Error(err))
+		return nil, err
+	}
+
+	return localTransactionI, nil
 }
 
 func NewPostgresDatabase(config PostgresDbConfig) (PostgresDB, error) {
