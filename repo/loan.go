@@ -24,7 +24,7 @@ type loan struct {
 }
 
 func (repo *loan) Create(ctx context.Context, data repoModel.CreateLoanInput) (*databaseModel.Loan, error) {
-	amountInLowestCurrency := data.Amount * 100
+	amountInLowestCurrency := data.Amount * constant.MinCurrencyConversionFactor
 	loanI := databaseModel.Loan{
 		UserID:            data.UserID,
 		DisbursalAmount:   amountInLowestCurrency,

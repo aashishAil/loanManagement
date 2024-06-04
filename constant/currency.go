@@ -3,7 +3,8 @@ package constant
 type Currency string
 
 const (
-	CurrencyINR Currency = "INR"
+	CurrencyINR                 Currency = "INR"
+	MinCurrencyConversionFactor          = 100
 )
 
 var (
