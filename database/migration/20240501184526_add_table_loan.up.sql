@@ -4,7 +4,6 @@ CREATE TABLE "public"."loan"
     "user_id"            uuid      NOT NULL REFERENCES "user" (id),
     "disbursal_amount"   bigint    NOT NULL,
     "pending_amount"     bigint    NOT NULL,
-    "weekly_installment" bigint    NOT NULL,
     "currency"           text      NOT NULL DEFAULT 'INR',
     "term"               bigint    NOT NULL,
     "status"             text      NOT NULL DEFAULT 'PENDING',

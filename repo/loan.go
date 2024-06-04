@@ -27,14 +27,13 @@ type loan struct {
 func (repo *loan) Create(ctx context.Context, data repoModel.CreateLoanInput) (*databaseModel.Loan, error) {
 	amountInLowestCurrency := data.Amount * constant.MinCurrencyConversionFactor
 	loanI := databaseModel.Loan{
-		UserID:            data.UserID,
-		DisbursalAmount:   amountInLowestCurrency,
-		PendingAmount:     amountInLowestCurrency,
-		WeeklyInstallment: amountInLowestCurrency / data.Term,
-		Currency:          data.Currency,
-		Term:              data.Term,
-		Status:            constant.LoanStatusPending,
-		DisbursalDate:     data.DisbursalDate.UTC(), // for consistency all dates will be stored in UTC
+		UserID:          data.UserID,
+		DisbursalAmount: amountInLowestCurrency,
+		PendingAmount:   amountInLowestCurrency,
+		Currency:        data.Currency,
+		Term:            data.Term,
+		Status:          constant.LoanStatusPending,
+		DisbursalDate:   data.DisbursalDate.UTC(), // for consistency all dates will be stored in UTC
 	}
 
 	db := repo.dbInstance.GetWritableDb()
