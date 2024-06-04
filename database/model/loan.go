@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"loanManagement/constant"
+	routerModel "loanManagement/router/model"
 
 	"github.com/google/uuid"
 )
@@ -21,6 +22,31 @@ type Loan struct {
 	User              User                `json:"user" gorm:"foreignKey:user_id"`
 }
 
-func (Loan) TableName() string {
+func (*Loan) TableName() string {
 	return "loan"
+}
+
+func (model *Loan) TransformForRouter(repayments []*ScheduledRepayment) routerModel.UserLoan {
+	loanI := routerModel.UserLoan{
+		ID:              model.ID,
+		UserID:          model.UserID,
+		DisbursalAmount: float64(model.DisbursalAmount) / constant.MinCurrencyConversionFactor,
+		PendingAmount:   float64(model.PendingAmount) / constant.MinCurrencyConversionFactor,
+		Currency:        model.Currency,
+		Term:            model.Term,
+		Status:          model.Status,
+		DisbursalDate:   model.DisbursalDate,
+	}
+
+	if len(repayments) > 0 {
+		repaymentArr := make([]routerModel.UserScheduledRepayment, len(repayments))
+		for i := range repayments {
+			repayment := repayments[i]
+			repaymentArr[i] = repayment.TransformForRouter()
+		}
+
+		loanI.ScheduledRepayments = &repaymentArr
+	}
+
+	return loanI
 }

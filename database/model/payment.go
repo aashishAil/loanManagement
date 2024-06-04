@@ -16,6 +16,6 @@ type Payment struct {
 	User     User              `json:"user" gorm:"foreignKey:user_id"`
 }
 
-func (Payment) TableName() string {
+func (*Payment) TableName() string {
 	return "payment"
 }

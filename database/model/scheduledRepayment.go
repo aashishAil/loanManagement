@@ -1,6 +1,7 @@
 package model
 
 import (
+	routerModel "loanManagement/router/model"
 	"time"
 
 	"loanManagement/constant"
@@ -19,6 +20,18 @@ type ScheduledRepayment struct {
 	Loan            Loan                           `json:"loan" gorm:"foreignKey:loan_id"`
 }
 
-func (ScheduledRepayment) TableName() string {
+func (*ScheduledRepayment) TableName() string {
 	return "scheduled_repayment"
+}
+
+func (model *ScheduledRepayment) TransformForRouter() routerModel.UserScheduledRepayment {
+	return routerModel.UserScheduledRepayment{
+		ID:              model.ID,
+		LoanID:          model.LoanID,
+		ScheduledAmount: float64(model.ScheduledAmount) / constant.MinCurrencyConversionFactor,
+		PendingAmount:   float64(model.PendingAmount) / constant.MinCurrencyConversionFactor,
+		Currency:        model.Currency,
+		Status:          model.Status,
+		ScheduledDate:   model.ScheduledDate,
+	}
 }
