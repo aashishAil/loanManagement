@@ -1,11 +1,11 @@
-### PRE-REQUISITES
+### Pre-requisites
 
 1. Golang version`1.21.X`, you can download the same from here [Golang](https://go.dev/dl/)
 2. Postgres version `16.X`, you can download the same from here [Postgres](https://www.postgresql.org/download/)
 3. Install `go-migrate` for database migrations, you can download the same from here [go-migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
+4. - Additionally if you want to use it for development purpose and generate the mocks, you can install by following the instructions on this page [mockery](https://vektra.github.io/mockery/latest/)
 
-### SETUP
-
+### Setup
 - Go through the values of `.env` file at the root of the folder and make sure you provide the correct POSTGRES database
   details, including the `credentials` and `database details`.
 - Run the following command from the root of the project to execute the migrations, after replacing the credentials and database details:
@@ -17,7 +17,7 @@
   go mod download
   ```
   
-### RUN
+### Run
 - Run the following command from the root of the project to start the server:
   ```bash
   go run main.go
@@ -38,4 +38,10 @@
     - Email: `customer@lm.com`
     - Password: `qwer1234`
   
-### TEST
+### Generating Mocks
+- Run the following command from the root of the project to generate the mocks:
+  ```bash
+  mockery --all
+  ```
+
+### Test
