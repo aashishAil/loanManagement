@@ -32,15 +32,18 @@ func (router *user) Login(c *gin.Context) {
 	ctx := router.contextUtil.CreateContextFromGinContext(c)
 	input := routerModel.UserLoginInput{}
 	if err := c.BindJSON(&input); err != nil {
+		logger.Log.Info("invalid input", logger.Error(err))
 		c.JSON(http.StatusBadRequest, constant.InvalidInputResponse)
 		return
 	}
 
 	if input.Email == "" {
+		logger.Log.Info("email is empty")
 		c.JSON(http.StatusBadRequest, constant.EmptyEmailResponse)
 		return
 	}
 	if input.Password == "" {
+		logger.Log.Info("password is empty")
 		c.JSON(http.StatusBadRequest, constant.EmptyPasswordResponse)
 		return
 	}
@@ -53,15 +56,11 @@ func (router *user) Login(c *gin.Context) {
 		customErr := appError.Custom{}
 		ok := errors.As(err, &customErr)
 		if ok {
-			logger.Log.Info("handled error",
-				logger.Any("err", customErr),
-				logger.String("api", "Login"),
-			)
 			statusCode = customErr.Code
 			errResp.Error = customErr.Err.Error()
 		} else {
 			logger.Log.Error("unexpected error",
-				logger.Any("err", err),
+				logger.Error(err),
 				logger.String("api", "Login"),
 			)
 		}
@@ -89,26 +88,31 @@ func (router *user) CreateLoan(c *gin.Context) {
 
 	input := routerModel.UserCreateLoanInput{}
 	if err := c.BindJSON(&input); err != nil {
+		logger.Log.Info("invalid input", logger.Error(err))
 		c.JSON(http.StatusBadRequest, constant.InvalidInputResponse)
 		return
 	}
 
 	if input.Amount <= 0 {
+		logger.Log.Info("invalid amount", logger.Int64("amount", input.Amount))
 		c.JSON(http.StatusBadRequest, constant.InvalidAmountResponse)
 		return
 	}
 
 	if input.Term <= 0 {
+		logger.Log.Info("invalid term", logger.Int64("term", input.Term))
 		c.JSON(http.StatusBadRequest, constant.InvalidTermResponse)
 		return
 	}
 
 	if input.Currency == "" {
+		logger.Log.Info("currency is empty")
 		c.JSON(http.StatusBadRequest, constant.InvalidCurrencyResponse)
 		return
 	}
 
 	if input.DisbursalDate.IsZero() {
+		logger.Log.Info("disbursal date is empty")
 		c.JSON(http.StatusBadRequest, constant.InvalidDisbursalDateResponse)
 		return
 	}
@@ -127,15 +131,11 @@ func (router *user) CreateLoan(c *gin.Context) {
 		customErr := appError.Custom{}
 		ok := errors.As(err, &customErr)
 		if ok {
-			logger.Log.Info("handled error",
-				logger.Any("err", customErr),
-				logger.String("api", "CreateLoan"),
-			)
 			statusCode = customErr.Code
 			errResp.Error = customErr.Err.Error()
 		} else {
 			logger.Log.Error("unexpected error",
-				logger.Any("err", err),
+				logger.Error(err),
 				logger.String("api", "CreateLoan"),
 			)
 		}

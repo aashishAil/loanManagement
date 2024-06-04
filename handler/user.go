@@ -78,20 +78,56 @@ func (h *user) CreateLoan(ctx context.Context, data handlerModel.CreateUserLoanI
 
 	// check if DisbursalDate is greater than 7 days from current time
 	if data.DisbursalDate.Before(h.timeUtil.GetCurrent().AddDate(0, 0, constant.LoanCreationDisbursalTimeGap)) {
+		logger.Log.Info("invalid disbursal date gap",
+			logger.String("disbursalDate", data.DisbursalDate.String()),
+			logger.String("currentDate", h.timeUtil.GetCurrent().String()),
+		)
 		return uuid.Nil, appError.Custom{
 			Err:  constant.InvalidDisbursalDateGapError,
 			Code: http.StatusBadRequest,
 		}
 	}
 
+	if data.Term < constant.MinLoanRepaymentTenure {
+		logger.Log.Info("term is less than minimum", logger.Int64("term", data.Term))
+		return uuid.Nil, appError.Custom{
+			Err:  constant.MinRepaymentTenureError,
+			Code: http.StatusBadRequest,
+		}
+
+	}
+
 	if data.Term > constant.MaxLoanRepaymentTenure {
+		logger.Log.Info("term is greater than maximum", logger.Int64("term", data.Term))
 		return uuid.Nil, appError.Custom{
 			Err:  constant.MaxRepaymentTenureError,
 			Code: http.StatusBadRequest,
 		}
 	}
 
-	data.DisbursalDate = data.DisbursalDate.UTC() // convert to UTC for consistency
+	if data.Amount < constant.MinDisbursalAmount {
+		logger.Log.Info("amount is less than minimum", logger.Int64("amount", data.Amount))
+		return uuid.Nil, appError.Custom{
+			Err:  constant.InvalidMinAmountError,
+			Code: http.StatusBadRequest,
+		}
+	}
+
+	if data.Amount > constant.MaxDisbursalAmount {
+		logger.Log.Info("amount is greater than maximum", logger.Int64("amount", data.Amount))
+		return uuid.Nil, appError.Custom{
+			Err:  constant.InvalidMaxAmountError,
+			Code: http.StatusBadRequest,
+		}
+	}
+
+	if _, found := constant.CurrencyMap[data.Currency]; !found {
+		logger.Log.Info("invalid currency", logger.String("currency", string(data.Currency)))
+		return uuid.Nil, appError.Custom{
+			Err:  constant.InvalidCurrencyError,
+			Code: http.StatusBadRequest,
+		}
+	}
 
 	txnDb, err := h.dbInstance.GetTransactionDb()
 	if err != nil {

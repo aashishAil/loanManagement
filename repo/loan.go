@@ -33,7 +33,7 @@ func (repo *loan) Create(ctx context.Context, data repoModel.CreateLoanInput) (*
 		Currency:          data.Currency,
 		Term:              data.Term,
 		Status:            constant.LoanStatusPending,
-		DisbursalDate:     data.DisbursalDate,
+		DisbursalDate:     data.DisbursalDate.UTC(), // for consistency all dates will be stored in UTC
 	}
 
 	db := repo.dbInstance.GetWritableDb()

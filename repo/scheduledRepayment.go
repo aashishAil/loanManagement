@@ -43,10 +43,12 @@ func (repo *scheduledRepayment) BulkCreate(ctx context.Context, data repoModel.B
 
 	for i := range data.ScheduledDates {
 		repaymentAmount := scheduledAmount
-		if i == 0 {
-			repaymentAmount += diffAmount
+		if diffAmount > 0 {
+			// distribute the remaining amount to the first few scheduled repayments
+			repaymentAmount += 1
+			diffAmount--
 		}
-		scheduledDate := data.ScheduledDates[i]
+		scheduledDate := data.ScheduledDates[i].UTC() // for consistency all dates will be stored in UTC
 		scheduledRepayments[i] = &databaseModel.ScheduledRepayment{
 			LoanID:          data.LoanID,
 			ScheduledAmount: repaymentAmount,
