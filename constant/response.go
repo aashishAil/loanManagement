@@ -32,6 +32,9 @@ var (
 	InvalidInputResponse = Response{
 		Error: "invalid input",
 	}
+	InvalidLoanIDResponse = Response{
+		Error: "invalid loanID",
+	}
 	InvalidStatusResponse = Response{
 		Error: "invalid status",
 	}
@@ -43,6 +46,9 @@ var (
 	}
 	MissingAuthTokenResponse = Response{
 		Error: "missing auth token",
+	}
+	TokenExpiredResponse = Response{
+		Error: "token expired",
 	}
 	UnableToAuthenticateResponse = Response{
 		Error: "unable to authenticate",

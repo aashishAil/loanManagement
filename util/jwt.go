@@ -1,6 +1,7 @@
 package util
 
 import (
+	"loanManagement/appError"
 	goTime "time"
 
 	"loanManagement/constant"
@@ -56,6 +57,12 @@ func (util *jwt) ValidateToken(tokenString string) (*model.LoggedInUser, error) 
 		return []byte(util.signingKey), nil
 	})
 	if err != nil {
+		if errors.Is(err, jwtLib.ErrTokenExpired) {
+			logger.Log.Info("token expired")
+			return nil, appError.Custom{
+				Err: errors.New("token expired"),
+			}
+		}
 		logger.Log.Error(err.Error())
 		return nil, errors.Wrap(err, "failed to parse token")
 	}

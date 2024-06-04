@@ -3,11 +3,13 @@ package middleware
 import (
 	"net/http"
 
+	"loanManagement/appError"
 	"loanManagement/constant"
 	"loanManagement/logger"
 	"loanManagement/util"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 type Auth interface {
@@ -37,10 +39,17 @@ func (middleware *auth) Authenticate() gin.HandlerFunc {
 
 		userI, err := middleware.jwtUtil.ValidateToken(authToken)
 		if err != nil {
-			logger.Log.Error("error validating token", logger.Error(err),
-				logger.String("method", requestMethod), logger.String("path", requestPath))
-			c.AbortWithStatusJSON(http.StatusUnauthorized, message)
-			return
+			customErr := appError.Custom{}
+			ok := errors.As(err, &customErr)
+			if ok {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, constant.TokenExpiredResponse)
+				return
+			} else {
+				logger.Log.Error("error validating token", logger.Error(err),
+					logger.String("method", requestMethod), logger.String("path", requestPath))
+				c.AbortWithStatusJSON(http.StatusUnauthorized, message)
+				return
+			}
 		}
 
 		if userI == nil {
