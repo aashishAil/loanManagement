@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 
+	"loanManagement/appError"
 	"loanManagement/constant"
 	dbInstance "loanManagement/database/instance"
 	databaseModel "loanManagement/database/model"
@@ -53,8 +54,20 @@ func (repo *loan) Create(ctx context.Context, data repoModel.CreateLoanInput) (*
 func (repo *loan) FindOne(ctx context.Context, data repoModel.FindOneLoanInput) (*databaseModel.Loan, error) {
 	var loanI databaseModel.Loan
 
-	queryModel := databaseModel.Loan{
-		UserID: data.UserID,
+	if data.LoanID == nil && data.UserID == nil {
+		return nil, appError.Custom{
+			Err: errors.New("loanID or userID is required"),
+		}
+	}
+
+	queryModel := databaseModel.Loan{}
+
+	if data.LoanID != nil {
+		queryModel.ID = *data.LoanID
+	}
+
+	if data.UserID != nil {
+		queryModel.UserID = *data.UserID
 	}
 
 	if data.DisbursalDate != nil {
@@ -73,9 +86,22 @@ func (repo *loan) FindOne(ctx context.Context, data repoModel.FindOneLoanInput) 
 func (repo *loan) FindAll(ctx context.Context, data repoModel.FindAllLoanInput) ([]*databaseModel.Loan, error) {
 	var loans []*databaseModel.Loan
 
-	result := repo.dbInstance.GetReadableDb().WithContext(ctx).Where(databaseModel.Loan{
-		UserID: data.UserID,
-	}).Find(&loans)
+	if data.UserID == nil && data.Status == nil {
+		return nil, appError.Custom{
+			Err: errors.New("userID or status is required"),
+		}
+	}
+
+	db := repo.dbInstance.GetReadableDb().WithContext(ctx)
+	if data.UserID != nil {
+		db = db.Where("user_id = ?", data.UserID)
+	}
+
+	if data.Status != nil {
+		db = db.Where("status = ?", data.Status)
+	}
+
+	result := db.Find(&loans)
 	if result.Error != nil {
 		logger.Log.Error("unable to find loans: %v", logger.Error(result.Error))
 		return nil, errors.Wrap(result.Error, "unable to find loans")

@@ -19,12 +19,14 @@ type CreateLoanInput struct {
 }
 
 type FindOneLoanInput struct {
-	UserID        uuid.UUID
+	LoanID        *uuid.UUID
+	UserID        *uuid.UUID
 	DisbursalDate *time.Time
 }
 
 type FindAllLoanInput struct {
-	UserID uuid.UUID
+	UserID *uuid.UUID
+	Status *constant.LoanStatus
 }
 
 type UpdateLoanInput struct {

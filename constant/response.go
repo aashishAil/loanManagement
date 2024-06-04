@@ -5,6 +5,9 @@ type Response struct {
 }
 
 var (
+	AdminOnlyRouteResponse = Response{
+		Error: "user should be an admin",
+	}
 	CustomerOnlyRouteResponse = Response{
 		Error: "user should be a customer",
 	}
@@ -23,8 +26,14 @@ var (
 	InvalidCurrencyResponse = Response{
 		Error: "currency cannot be empty",
 	}
+	InvalidFetchScheduledRepaymentsResponse = Response{
+		Error: "invalid flag value for fetchScheduledRepayments",
+	}
 	InvalidInputResponse = Response{
 		Error: "invalid input",
+	}
+	InvalidStatusResponse = Response{
+		Error: "invalid status",
 	}
 	InvalidTermResponse = Response{
 		Error: "invalid term",

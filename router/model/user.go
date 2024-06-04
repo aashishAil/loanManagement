@@ -29,7 +29,7 @@ type UserCreateLoanOutput struct {
 }
 
 type GetUserLoansOutput struct {
-	Loans []UserLoan `json:"loan"`
+	Loans []UserLoan `json:"loans"`
 }
 
 type UserLoan struct {

@@ -186,7 +186,7 @@ func (h *user) CreateLoan(ctx context.Context, data handlerModel.CreateUserLoanI
 
 func (h *user) FetchLoans(ctx context.Context, data handlerModel.FetchUserLoanInput) (*handlerModel.FetchUserLoansOutput, error) {
 	loansArr, err := h.loanRepo.FindAll(ctx, repoModel.FindAllLoanInput{
-		UserID: data.UserID,
+		UserID: &data.UserID,
 	})
 	if err != nil {
 		logger.Log.Error("failed to find loans", logger.Error(err))

@@ -15,3 +15,10 @@ const (
 	MinDisbursalAmount           = 1000
 	MaxDisbursalAmount           = 10_00_00_000
 )
+
+var LoanStatusMap = map[LoanStatus]struct{}{
+	LoanStatusPending:  {},
+	LoanStatusApproved: {},
+	LoanStatusRejected: {},
+	LoanStatusPaid:     {},
+}

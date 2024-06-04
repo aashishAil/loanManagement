@@ -31,6 +31,6 @@ func (*fallback) PingForGinRoute(c *gin.Context) {
 	})
 }
 
-func NewDefault() Fallback {
+func NewFallback() Fallback {
 	return &fallback{}
 }

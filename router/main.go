@@ -7,11 +7,13 @@ import (
 )
 
 type Router interface {
+	Admin() Admin
 	Fallback() Fallback
 	User() User
 }
 
 type router struct {
+	admin    Admin
 	fallback Fallback
 	user     User
 }
@@ -28,6 +30,10 @@ func Init(instance instance.Instance) Router {
 	scheduledRepaymentRepo := repo.NewScheduledRepayment(dbInstance)
 	userRepo := repo.NewUser(dbInstance, passwordUtil)
 
+	adminHandler := handler.NewAdmin(
+		loanRepo,
+		scheduledRepaymentRepo,
+	)
 	userHandler := handler.NewUser(
 		loanRepo,
 		scheduledRepaymentRepo,
@@ -39,7 +45,12 @@ func Init(instance instance.Instance) Router {
 		timeUtil,
 	)
 
-	defaultRouter := NewDefault()
+	adminRouter := NewAdmin(
+		adminHandler,
+
+		contextUtil,
+	)
+	fallbackRouter := NewFallback()
 	userRouter := NewUser(
 		userHandler,
 
@@ -48,12 +59,18 @@ func Init(instance instance.Instance) Router {
 		passwordUtil,
 	)
 
-	router := router{
-		fallback: defaultRouter,
+	routerI := router{
+		admin:    adminRouter,
+		fallback: fallbackRouter,
 		user:     userRouter,
 	}
 
-	return &router
+	return &routerI
+}
+
+func (r *router) Admin() Admin {
+	return r.admin
+
 }
 
 func (r *router) Fallback() Fallback {

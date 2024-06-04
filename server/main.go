@@ -44,6 +44,7 @@ func attachRoutes(r *gin.Engine) error {
 	apiGroup.GET("/ping", appRouter.Fallback().PingForGinRoute)
 
 	attachUserRoutes(apiGroup.Group("/user"), appRouter.User(), middlewareI)
+	attachAdminRoutes(apiGroup.Group("/admin"), appRouter.Admin(), middlewareI)
 
 	r.NoRoute(appRouter.Fallback().NoRouteForGinHandler())
 
@@ -55,4 +56,9 @@ func attachUserRoutes(router *gin.RouterGroup, customerRouter router.User, middl
 	router.Use(middlewareI.Auth().Authenticate())
 	router.POST("/loan", customerRouter.CreateLoan)
 	router.GET("/loan", customerRouter.ViewLoan)
+}
+
+func attachAdminRoutes(router *gin.RouterGroup, adminRouter router.Admin, middlewareI middleware.Middleware) {
+	router.Use(middlewareI.Auth().Authenticate())
+	router.GET("/loan/:status", adminRouter.ViewLoan)
 }
