@@ -18,6 +18,7 @@ import (
 type User interface {
 	Login(c *gin.Context)
 	CreateLoan(c *gin.Context)
+	ViewLoan(c *gin.Context)
 }
 
 type user struct {
@@ -145,6 +146,50 @@ func (router *user) CreateLoan(c *gin.Context) {
 
 	resp := routerModel.UserCreateLoanOutput{
 		LoanID: loanID,
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (router *user) ViewLoan(c *gin.Context) {
+	ctx := router.contextUtil.CreateContextFromGinContext(c)
+
+	userI := router.contextUtil.GetLoggedInUser(ctx)
+	// skipping check for userI being null as that should be already validated in the authentication middleware
+	if userI.Type != constant.UserTypeCustomer {
+		c.JSON(http.StatusForbidden, constant.CustomerOnlyRouteResponse)
+		return
+	}
+
+	loanData, err := router.userHandler.FetchLoans(ctx, handlerModel.FetchUserLoanInput{
+		UserID: userI.ID,
+	})
+	if err != nil {
+		statusCode := http.StatusInternalServerError
+		errResp := constant.DefaultErrorResponse
+
+		customErr := appError.Custom{}
+		ok := errors.As(err, &customErr)
+		if ok {
+			statusCode = customErr.Code
+			errResp.Error = customErr.Err.Error()
+		} else {
+			logger.Log.Error("unexpected error",
+				logger.Error(err),
+				logger.String("api", "ViewLoan"),
+			)
+		}
+		c.JSON(statusCode, errResp)
+		return
+	}
+
+	resp := routerModel.GetUserLoansOutput{
+		Loans: make([]routerModel.UserLoan, len(loanData.Loans)),
+	}
+
+	for i := range loanData.Loans {
+		loanI := loanData.Loans[i]
+		resp.Loans[i] = loanI.TransformForRouter(loanData.LoanScheduledRepayments[loanI.ID])
 	}
 
 	c.JSON(http.StatusOK, resp)

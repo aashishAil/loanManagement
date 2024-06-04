@@ -10,6 +10,6 @@ type User struct {
 	Type              constant.UserType `json:"type" gorm:"column:type"`
 }
 
-func (User) TableName() string {
+func (*User) TableName() string {
 	return "user"
 }

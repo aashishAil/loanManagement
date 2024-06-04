@@ -8,6 +8,7 @@ import (
 	"loanManagement/appError"
 	"loanManagement/constant"
 	dbInstance "loanManagement/database/instance"
+	databaseModel "loanManagement/database/model"
 	handlerModel "loanManagement/handler/model"
 	"loanManagement/logger"
 	"loanManagement/repo"
@@ -21,6 +22,7 @@ import (
 type User interface {
 	CheckValidCredentials(ctx context.Context, email, password string) (string, error)
 	CreateLoan(ctx context.Context, data handlerModel.CreateUserLoanInput) (uuid.UUID, error)
+	FetchLoans(ctx context.Context, data handlerModel.FetchUserLoanInput) (*handlerModel.FetchUserLoansOutput, error)
 }
 
 type user struct {
@@ -180,6 +182,50 @@ func (h *user) CreateLoan(ctx context.Context, data handlerModel.CreateUserLoanI
 	}
 
 	return loanI.ID, nil
+}
+
+func (h *user) FetchLoans(ctx context.Context, data handlerModel.FetchUserLoanInput) (*handlerModel.FetchUserLoansOutput, error) {
+	loansArr, err := h.loanRepo.FindAll(ctx, repoModel.FindAllLoanInput{
+		UserID: data.UserID,
+	})
+	if err != nil {
+		logger.Log.Error("failed to find loans", logger.Error(err))
+		return nil, err
+	}
+
+	loanScheduledRepayments := make(map[uuid.UUID][]*databaseModel.ScheduledRepayment)
+
+	if len(loansArr) == 0 {
+		// no loans found for the user
+		return &handlerModel.FetchUserLoansOutput{
+			Loans:                   loansArr,
+			LoanScheduledRepayments: loanScheduledRepayments,
+		}, nil
+	}
+
+	loanIDs := make([]uuid.UUID, len(loansArr))
+	for i := range loansArr {
+		loanI := loansArr[i]
+		loanIDs[i] = loanI.ID
+	}
+
+	scheduledRepayments, err := h.scheduledRepaymentRepo.FindAll(ctx, repoModel.FindAllScheduledRepaymentInput{
+		LoanIDs: loanIDs,
+	})
+	if err != nil {
+		logger.Log.Error("failed to find scheduled repayments", logger.Error(err))
+		return nil, err
+	}
+
+	for i := range scheduledRepayments {
+		scheduledRepaymentI := scheduledRepayments[i]
+		loanScheduledRepayments[scheduledRepaymentI.LoanID] = append(loanScheduledRepayments[scheduledRepaymentI.LoanID], scheduledRepaymentI)
+	}
+
+	return &handlerModel.FetchUserLoansOutput{
+		Loans:                   loansArr,
+		LoanScheduledRepayments: loanScheduledRepayments,
+	}, nil
 }
 
 func NewUser(
