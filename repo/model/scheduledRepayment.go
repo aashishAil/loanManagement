@@ -25,5 +25,6 @@ type UpdateScheduledRepaymentInput struct {
 }
 
 type FindAllScheduledRepaymentInput struct {
-	LoanID uuid.UUID
+	LoanIDs []uuid.UUID
+	Status  *constant.SchedulePaymentStatus
 }

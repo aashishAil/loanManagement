@@ -23,9 +23,14 @@ type scheduledRepayment struct {
 func (repo *scheduledRepayment) FindAll(ctx context.Context, data repoModel.FindAllScheduledRepaymentInput) ([]*databaseModel.ScheduledRepayment, error) {
 	var scheduledRepayments []*databaseModel.ScheduledRepayment
 
-	err := repo.dbInstance.GetReadableDb().WithContext(ctx).Where(&databaseModel.ScheduledRepayment{
-		LoanID: data.LoanID,
-	}).Find(&scheduledRepayments).Error
+	db := repo.dbInstance.GetReadableDb().WithContext(ctx)
+	if len(data.LoanIDs) > 0 {
+		db = db.Where("loan_id IN ?", data.LoanIDs)
+	}
+	if data.Status != nil {
+		db = db.Where("status = ?", *data.Status)
+	}
+	err := db.Order("scheduled_date").Find(&scheduledRepayments).Error
 	if err != nil {
 		logger.Log.Error("failed to find scheduledRepayment", logger.Error(err))
 		return nil, err
@@ -36,7 +41,7 @@ func (repo *scheduledRepayment) FindAll(ctx context.Context, data repoModel.Find
 
 func (repo *scheduledRepayment) BulkCreate(ctx context.Context, data repoModel.BulkCreateScheduledRepaymentInput) error {
 	scheduledRepayments := make([]*databaseModel.ScheduledRepayment, len(data.ScheduledDates))
-	amountInLowestCurrency := data.LoanAmount * 100
+	amountInLowestCurrency := data.LoanAmount * constant.MinCurrencyConversionFactor
 	totalDate := len(data.ScheduledDates)
 	scheduledAmount := amountInLowestCurrency / int64(totalDate)
 	diffAmount := amountInLowestCurrency - (scheduledAmount * int64(totalDate))
