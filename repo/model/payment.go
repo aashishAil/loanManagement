@@ -10,7 +10,7 @@ import (
 type CreatePaymentInput struct {
 	LoanID   uuid.UUID
 	UserID   uuid.UUID
-	Amount   int64
+	Amount   float64
 	Currency constant.Currency
 	TxDb     *dbInstance.PostgresTransactionDB
 }

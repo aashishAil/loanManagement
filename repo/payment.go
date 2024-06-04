@@ -13,6 +13,7 @@ import (
 )
 
 type Payment interface {
+	Create(ctx context.Context, data repoModel.CreatePaymentInput) (*databaseModel.Payment, error)
 }
 
 type payment struct {
@@ -20,7 +21,7 @@ type payment struct {
 }
 
 func (repo *payment) Create(ctx context.Context, data repoModel.CreatePaymentInput) (*databaseModel.Payment, error) {
-	amountInLowestCurrency := data.Amount * constant.MinCurrencyConversionFactor
+	amountInLowestCurrency := int64(data.Amount * constant.MinCurrencyConversionFactor)
 	paymentI := databaseModel.Payment{
 		UserID:   data.UserID,
 		LoanID:   data.LoanID,

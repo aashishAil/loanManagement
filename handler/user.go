@@ -23,10 +23,12 @@ type User interface {
 	CheckValidCredentials(ctx context.Context, email, password string) (string, error)
 	CreateLoan(ctx context.Context, data handlerModel.CreateUserLoanInput) (uuid.UUID, error)
 	FetchLoans(ctx context.Context, data handlerModel.FetchUserLoanInput) (*handlerModel.FetchUserLoansOutput, error)
+	AddLoanPayment(ctx context.Context, data handlerModel.AddUserLoanPaymentInput) (*handlerModel.AddUserLoanPaymentOutput, error)
 }
 
 type user struct {
 	loanRepo               repo.Loan
+	paymentRepo            repo.Payment
 	scheduledRepaymentRepo repo.ScheduledRepayment
 	userRepo               repo.User
 
@@ -228,8 +230,167 @@ func (h *user) FetchLoans(ctx context.Context, data handlerModel.FetchUserLoanIn
 	}, nil
 }
 
+func (h *user) AddLoanPayment(ctx context.Context, data handlerModel.AddUserLoanPaymentInput) (*handlerModel.AddUserLoanPaymentOutput, error) {
+	loanI, err := h.loanRepo.FindOne(ctx, repoModel.FindOneLoanInput{
+		ID:     &data.LoanID,
+		UserID: &data.UserID,
+	})
+	if err != nil {
+		logger.Log.Error("failed to find loan", logger.Error(err))
+		return nil, err
+	}
+
+	if loanI.Status == constant.LoanStatusPending || loanI.Status == constant.LoanStatusPaid || loanI.Status == constant.LoanStatusRejected {
+		logger.Log.Info("invalid loan status for payment", logger.String("status", string(loanI.Status)))
+		return nil, appError.Custom{
+			Err:  constant.LoanInTerminalStatusError,
+			Code: http.StatusBadRequest,
+		}
+	}
+
+	var nextScheduledRepayment *databaseModel.ScheduledRepayment
+	markLoanAsPaid := false
+	paidAmount := int64(data.Amount * constant.MinCurrencyConversionFactor)
+	pendingAmount := loanI.PendingAmount - paidAmount
+	if pendingAmount < 0 {
+		logger.Log.Info("invalid payment amount", logger.String("loanID", loanI.ID.String()),
+			logger.Float64("amount", data.Amount))
+		return nil, appError.Custom{
+			Err:  constant.InvalidPaymentAmountError,
+			Code: http.StatusBadRequest,
+		}
+	}
+
+	if pendingAmount == 0 {
+		markLoanAsPaid = true
+	}
+
+	scheduledRepaymentStatus := constant.ScheduleRepaymentStatusApproved
+	scheduledRepayments, err := h.scheduledRepaymentRepo.FindAll(ctx, repoModel.FindAllScheduledRepaymentInput{
+		LoanIDs: []uuid.UUID{data.LoanID},
+		Status:  &scheduledRepaymentStatus,
+	})
+	if err != nil {
+		logger.Log.Error("failed to find scheduled repayments", logger.String("loanID", loanI.ID.String()), logger.Error(err))
+		return nil, err
+	}
+
+	if len(scheduledRepayments) == 0 {
+		logger.Log.Error("no pending scheduled repayments found for loan", logger.String("loanID", loanI.ID.String()), logger.String("loanID", data.LoanID.String()))
+		return nil, appError.Custom{
+			Err:  constant.NoScheduledRepaymentFoundError,
+			Code: http.StatusInternalServerError,
+		}
+	}
+
+	if paidAmount < scheduledRepayments[0].PendingAmount {
+		return nil, appError.Custom{
+			Err:  constant.PaymentAmountScheduledPaymentMismatchError,
+			Code: http.StatusBadRequest,
+		}
+	}
+
+	txnDb, err := h.dbInstance.GetTransactionDb()
+	if err != nil {
+		logger.Log.Error("failed to create transaction db", logger.String("loanID", loanI.ID.String()), logger.Error(err))
+		return nil, err
+	}
+
+	_, err = h.paymentRepo.Create(ctx, repoModel.CreatePaymentInput{
+		LoanID:   data.LoanID,
+		UserID:   data.UserID,
+		Amount:   data.Amount,
+		Currency: loanI.Currency,
+		TxDb:     &txnDb,
+	})
+	if err != nil {
+		rollbackErr := txnDb.Rollback()
+		if rollbackErr != nil {
+			logger.Log.Error("failed to rollback transaction", logger.String("loanID", loanI.ID.String()), logger.Error(rollbackErr))
+			return nil, rollbackErr
+		}
+		return nil, err
+	}
+
+	updateLoanInput := repoModel.UpdateLoanInput{
+		ID:            data.LoanID,
+		PendingAmount: &pendingAmount,
+	}
+	if markLoanAsPaid {
+		loanStatus := constant.LoanStatusPaid
+		updateLoanInput.Status = &loanStatus
+	}
+
+	err = h.loanRepo.Update(ctx, updateLoanInput)
+	if err != nil {
+		rollbackErr := txnDb.Rollback()
+		if rollbackErr != nil {
+			logger.Log.Error("failed to rollback transaction", logger.String("loanID", loanI.ID.String()), logger.Error(rollbackErr))
+			return nil, rollbackErr
+		}
+		return nil, err
+	}
+
+	for i := range scheduledRepayments {
+		scheduledRepaymentI := scheduledRepayments[i]
+		markScheduledRepaymentAsPaid := false
+		if paidAmount <= 0 {
+			nextScheduledRepayment = scheduledRepaymentI
+			break
+		}
+		scheduledPaymentAmount := scheduledRepaymentI.PendingAmount - paidAmount
+		if scheduledPaymentAmount < 0 {
+			scheduledPaymentAmount = 0
+		}
+		if scheduledPaymentAmount == 0 {
+			markScheduledRepaymentAsPaid = true
+		}
+		paidAmount -= scheduledRepaymentI.PendingAmount
+		updateScheduledRepaymentInput := repoModel.UpdateScheduledRepaymentInput{
+			ID:            &scheduledRepaymentI.ID,
+			PendingAmount: &scheduledPaymentAmount,
+		}
+		if markScheduledRepaymentAsPaid {
+			scheduledRepaymentStatus := constant.ScheduleRepaymentStatusPaid
+			updateScheduledRepaymentInput.Status = &scheduledRepaymentStatus
+		}
+		err = h.scheduledRepaymentRepo.Update(ctx, updateScheduledRepaymentInput)
+		if err != nil {
+			rollbackErr := txnDb.Rollback()
+			if rollbackErr != nil {
+				logger.Log.Error("failed to rollback transaction", logger.String("loanID", loanI.ID.String()), logger.Error(rollbackErr))
+				return nil, rollbackErr
+			}
+			return nil, err
+		}
+		if scheduledPaymentAmount > 0 && paidAmount == 0 {
+			scheduledRepaymentI.PendingAmount = scheduledPaymentAmount
+			nextScheduledRepayment = scheduledRepaymentI
+			break
+		}
+	}
+
+	err = txnDb.Commit()
+	if err != nil {
+		logger.Log.Error("failed to commit transaction", logger.Error(err))
+		return nil, err
+	}
+
+	resp := &handlerModel.AddUserLoanPaymentOutput{
+		IsLoanClosed:  markLoanAsPaid,
+		PendingAmount: float64(pendingAmount) / constant.MinCurrencyConversionFactor,
+	}
+	if nextScheduledRepayment != nil {
+		pendingScheduledRepaymentAmount := float64(nextScheduledRepayment.PendingAmount) / constant.MinCurrencyConversionFactor
+		resp.NextPaymentAmount = &pendingScheduledRepaymentAmount
+		resp.NextDueDate = &nextScheduledRepayment.ScheduledDate
+	}
+	return resp, nil
+}
+
 func NewUser(
 	loanRepo repo.Loan,
+	paymentRepo repo.Payment,
 	scheduledRepaymentRepo repo.ScheduledRepayment,
 	userRepo repo.User,
 
@@ -240,6 +401,7 @@ func NewUser(
 ) User {
 	return &user{
 		loanRepo:               loanRepo,
+		paymentRepo:            paymentRepo,
 		scheduledRepaymentRepo: scheduledRepaymentRepo,
 		userRepo:               userRepo,
 

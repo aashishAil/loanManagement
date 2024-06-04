@@ -27,6 +27,7 @@ func Init(instance instance.Instance) Router {
 	dbInstance := instance.DatabaseInstance()
 
 	loanRepo := repo.NewLoan(dbInstance)
+	paymentRepo := repo.NewPayment(dbInstance)
 	scheduledRepaymentRepo := repo.NewScheduledRepayment(dbInstance)
 	userRepo := repo.NewUser(dbInstance, passwordUtil)
 
@@ -38,6 +39,7 @@ func Init(instance instance.Instance) Router {
 	)
 	userHandler := handler.NewUser(
 		loanRepo,
+		paymentRepo,
 		scheduledRepaymentRepo,
 		userRepo,
 

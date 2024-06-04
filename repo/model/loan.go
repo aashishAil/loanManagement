@@ -19,7 +19,7 @@ type CreateLoanInput struct {
 }
 
 type FindOneLoanInput struct {
-	LoanID        *uuid.UUID
+	ID            *uuid.UUID
 	UserID        *uuid.UUID
 	DisbursalDate *time.Time
 }
@@ -31,9 +31,8 @@ type FindAllLoanInput struct {
 }
 
 type UpdateLoanInput struct {
-	ID              uuid.UUID
-	Status          constant.LoanStatus
-	DisbursalAmount *int64
-	DisbursalDate   *time.Time
-	TxDb            *dbInstance.PostgresTransactionDB
+	ID            uuid.UUID
+	Status        *constant.LoanStatus
+	PendingAmount *int64
+	TxDb          *dbInstance.PostgresTransactionDB
 }

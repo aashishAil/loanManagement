@@ -53,3 +53,14 @@ type UserScheduledRepayment struct {
 	Status          constant.ScheduleRepaymentStatus `json:"status"`
 	ScheduledDate   time.Time                        `json:"scheduledDate"`
 }
+
+type UserRecordPaymentInput struct {
+	Amount float64 `json:"amount"`
+}
+
+type UserRecordPaymentOutput struct {
+	IsLoanClosed      bool       `json:"isLoanClosed"`
+	PendingAmount     float64    `json:"pendingAmount"`
+	NextDueDate       *time.Time `json:"nextDueDate"`
+	NextPaymentAmount *float64   `json:"nextPaymentAmount"`
+}

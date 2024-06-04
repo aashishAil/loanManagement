@@ -25,3 +25,16 @@ type FetchUserLoansOutput struct {
 	Loans                   []*databaseModel.Loan
 	LoanScheduledRepayments map[uuid.UUID][]*databaseModel.ScheduledRepayment
 }
+
+type AddUserLoanPaymentInput struct {
+	LoanID uuid.UUID
+	UserID uuid.UUID
+	Amount float64
+}
+
+type AddUserLoanPaymentOutput struct {
+	IsLoanClosed      bool
+	NextDueDate       *time.Time
+	NextPaymentAmount *float64
+	PendingAmount     float64
+}

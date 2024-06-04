@@ -56,6 +56,7 @@ func attachUserRoutes(router *gin.RouterGroup, customerRouter router.User, middl
 	router.Use(middlewareI.Auth().Authenticate())
 	router.POST("/loan", customerRouter.CreateLoan)
 	router.GET("/loan", customerRouter.ViewLoan)
+	router.POST("/loan/:ID/payment", customerRouter.RecordPayment)
 }
 
 func attachAdminRoutes(router *gin.RouterGroup, adminRouter router.Admin, middlewareI middleware.Middleware) {

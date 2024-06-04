@@ -53,7 +53,7 @@ func (repo *loan) Create(ctx context.Context, data repoModel.CreateLoanInput) (*
 func (repo *loan) FindOne(ctx context.Context, data repoModel.FindOneLoanInput) (*databaseModel.Loan, error) {
 	var loanI databaseModel.Loan
 
-	if data.LoanID == nil && data.UserID == nil {
+	if data.ID == nil && data.UserID == nil {
 		return nil, appError.Custom{
 			Err: errors.New("loanID or userID is required"),
 		}
@@ -61,8 +61,8 @@ func (repo *loan) FindOne(ctx context.Context, data repoModel.FindOneLoanInput) 
 
 	queryModel := databaseModel.Loan{}
 
-	if data.LoanID != nil {
-		queryModel.ID = *data.LoanID
+	if data.ID != nil {
+		queryModel.ID = *data.ID
 	}
 
 	if data.UserID != nil {
@@ -118,8 +118,14 @@ func (repo *loan) FindAll(ctx context.Context, data repoModel.FindAllLoanInput) 
 }
 
 func (repo *loan) Update(ctx context.Context, data repoModel.UpdateLoanInput) error {
-	updatedModel := databaseModel.Loan{
-		Status: data.Status,
+	updatedModel := databaseModel.Loan{}
+
+	if data.Status != nil {
+		updatedModel.Status = *data.Status
+	}
+
+	if data.PendingAmount != nil {
+		updatedModel.PendingAmount = *data.PendingAmount
 	}
 
 	db := repo.dbInstance.GetWritableDb()

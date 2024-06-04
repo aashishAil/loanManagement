@@ -92,7 +92,7 @@ func (h *admin) UpdateLoanAndScheduledRepayment(ctx context.Context, data handle
 
 	err = h.loanRepo.Update(ctx, repoModel.UpdateLoanInput{
 		ID:     data.LoanI.ID,
-		Status: data.Status,
+		Status: &data.Status,
 		TxDb:   &txnDb,
 	})
 	if err != nil {
