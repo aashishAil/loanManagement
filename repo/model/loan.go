@@ -25,6 +25,7 @@ type FindOneLoanInput struct {
 }
 
 type FindAllLoanInput struct {
+	IDs    []uuid.UUID
 	UserID *uuid.UUID
 	Status *constant.LoanStatus
 }

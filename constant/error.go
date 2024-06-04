@@ -9,4 +9,5 @@ var (
 	InvalidMinAmountError        = errors.New("amount should be at least 1000")
 	InvalidMaxAmountError        = errors.New("amount should be at most 10,00,00,000")
 	InvalidCurrencyError         = errors.New("invalid currency provided")
+	LoanInTerminalStatusError    = errors.New("loan is in terminal status")
 )

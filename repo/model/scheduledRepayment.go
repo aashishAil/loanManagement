@@ -18,13 +18,14 @@ type BulkCreateScheduledRepaymentInput struct {
 }
 
 type UpdateScheduledRepaymentInput struct {
-	ID            uuid.UUID
+	ID            *uuid.UUID
+	LoanID        *uuid.UUID
 	PendingAmount *int64
-	Status        *constant.SchedulePaymentStatus
+	Status        *constant.ScheduleRepaymentStatus
 	TxDb          *dbInstance.PostgresTransactionDB
 }
 
 type FindAllScheduledRepaymentInput struct {
 	LoanIDs []uuid.UUID
-	Status  *constant.SchedulePaymentStatus
+	Status  *constant.ScheduleRepaymentStatus
 }

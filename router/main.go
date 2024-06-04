@@ -33,6 +33,8 @@ func Init(instance instance.Instance) Router {
 	adminHandler := handler.NewAdmin(
 		loanRepo,
 		scheduledRepaymentRepo,
+
+		dbInstance,
 	)
 	userHandler := handler.NewUser(
 		loanRepo,

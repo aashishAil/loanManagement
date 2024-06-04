@@ -45,11 +45,11 @@ type UserLoan struct {
 }
 
 type UserScheduledRepayment struct {
-	ID              uuid.UUID                      `json:"id"`
-	LoanID          uuid.UUID                      `json:"loanID"`
-	ScheduledAmount float64                        `json:"scheduledAmount"`
-	PendingAmount   float64                        `json:"pendingAmount"`
-	Currency        constant.Currency              `json:"currency"`
-	Status          constant.SchedulePaymentStatus `json:"status"`
-	ScheduledDate   time.Time                      `json:"scheduledDate"`
+	ID              uuid.UUID                        `json:"id"`
+	LoanID          uuid.UUID                        `json:"loanID"`
+	ScheduledAmount float64                          `json:"scheduledAmount"`
+	PendingAmount   float64                          `json:"pendingAmount"`
+	Currency        constant.Currency                `json:"currency"`
+	Status          constant.ScheduleRepaymentStatus `json:"status"`
+	ScheduledDate   time.Time                        `json:"scheduledDate"`
 }

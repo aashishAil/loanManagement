@@ -25,7 +25,11 @@ func (repo *scheduledRepayment) FindAll(ctx context.Context, data repoModel.Find
 
 	db := repo.dbInstance.GetReadableDb().WithContext(ctx)
 	if len(data.LoanIDs) > 0 {
-		db = db.Where("loan_id IN ?", data.LoanIDs)
+		if len(data.LoanIDs) == 1 {
+			db = db.Where("loan_id = ?", data.LoanIDs[0])
+		} else {
+			db = db.Where("loan_id IN ?", data.LoanIDs)
+		}
 	}
 	if data.Status != nil {
 		db = db.Where("status = ?", *data.Status)
@@ -59,7 +63,7 @@ func (repo *scheduledRepayment) BulkCreate(ctx context.Context, data repoModel.B
 			ScheduledAmount: repaymentAmount,
 			PendingAmount:   repaymentAmount,
 			Currency:        data.Currency,
-			Status:          constant.SchedulePaymentStatusPending,
+			Status:          constant.ScheduleRepaymentStatusPending,
 			ScheduledDate:   scheduledDate,
 		}
 	}
@@ -94,11 +98,16 @@ func (repo *scheduledRepayment) Update(ctx context.Context, data repoModel.Updat
 		db = (*data.TxDb).Get()
 	}
 
-	result := db.WithContext(ctx).Model(&databaseModel.ScheduledRepayment{
-		BaseWithUpdatedAt: databaseModel.BaseWithUpdatedAt{
-			ID: data.ID,
-		},
-	}).Updates(updateModel)
+	db = db.WithContext(ctx)
+	if data.ID != nil {
+		db = db.Where("id = ?", *data.ID)
+	}
+
+	if data.LoanID != nil {
+		db = db.Where("loan_id = ?", *data.LoanID)
+	}
+
+	result := db.Updates(updateModel)
 	if result.Error != nil {
 		logger.Log.Error("unable to update scheduledRepayment", logger.Error(result.Error))
 		return result.Error

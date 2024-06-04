@@ -86,9 +86,9 @@ func (repo *loan) FindOne(ctx context.Context, data repoModel.FindOneLoanInput) 
 func (repo *loan) FindAll(ctx context.Context, data repoModel.FindAllLoanInput) ([]*databaseModel.Loan, error) {
 	var loans []*databaseModel.Loan
 
-	if data.UserID == nil && data.Status == nil {
+	if data.UserID == nil && data.Status == nil && len(data.IDs) == 0 {
 		return nil, appError.Custom{
-			Err: errors.New("userID or status is required"),
+			Err: errors.New("userID, status or loanIDs is required"),
 		}
 	}
 
@@ -99,6 +99,14 @@ func (repo *loan) FindAll(ctx context.Context, data repoModel.FindAllLoanInput) 
 
 	if data.Status != nil {
 		db = db.Where("status = ?", data.Status)
+	}
+
+	if len(data.IDs) > 0 {
+		if len(data.IDs) == 1 {
+			db = db.Where("id = ?", data.IDs[0])
+		} else {
+			db = db.Where("id IN (?)", data.IDs)
+		}
 	}
 
 	result := db.Find(&loans)

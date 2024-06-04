@@ -1,9 +1,10 @@
 package constant
 
-type SchedulePaymentStatus string
+type ScheduleRepaymentStatus string
 
 const (
-	SchedulePaymentStatusPending  SchedulePaymentStatus = "PENDING"
-	SchedulePaymentStatusApproved SchedulePaymentStatus = "APPROVED"
-	SchedulePaymentStatusPaid     SchedulePaymentStatus = "PAID"
+	ScheduleRepaymentStatusPending  ScheduleRepaymentStatus = "PENDING"
+	ScheduleRepaymentStatusApproved ScheduleRepaymentStatus = "APPROVED"
+	ScheduleRepaymentStatusRejected ScheduleRepaymentStatus = "REJECTED"
+	ScheduleRepaymentStatusPaid     ScheduleRepaymentStatus = "PAID"
 )
