@@ -1,3 +1,6 @@
+This is a loan management system, which allows the admin to manage the loans and the customers to apply for the loans. The system is built using Golang and Postgres as the database.
+There are limits set for the customers loan amount, repayment and tenure. Right now the system only supports loans in the currency ```INR```
+
 ### Pre-requisites
 
 1. Golang version`1.21.X`, you can download the same from here [Golang](https://go.dev/dl/)
@@ -45,3 +48,8 @@
   ```
 
 ### Test
+Run the following commands to execute the test
+```bash
+cd tests
+go test ./...
+```
